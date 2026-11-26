@@ -1616,6 +1616,14 @@
       🧠 Memory hook
     </p>
 
+    <div id="pop-example-box" class="hidden text-[11px] bg-slate-50 border border-slate-200/80 rounded-xl p-2 space-y-0.5">
+      <div class="flex items-start justify-between gap-1.5">
+        <p id="pop-example-jp" class="font-jp font-bold text-slate-800 leading-relaxed"></p>
+        <button type="button" id="pop-example-audio-btn" class="shrink-0 px-1.5 py-0.5 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 text-[10px]" title="Listen to example">🔊</button>
+      </div>
+      <p id="pop-example-en" class="text-[10px] text-slate-500"></p>
+    </div>
+
     <p id="pop-kanji-trap" class="hidden text-[11px] text-amber-950 bg-amber-50 border border-amber-200/80 rounded-xl p-2 leading-snug">
       ⚠️ Kanji stroke alert
     </p>
@@ -1633,6 +1641,9 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5" id="global-search-filters">
             <button type="button" data-gsf="ALL" onclick="setGlobalSearchFilter('ALL')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-[#4F46E5] text-white">All</button>
+            <button type="button" data-gsf="CHAPTER" id="gsf-chapter-pill" onclick="setGlobalSearchFilter('CHAPTER')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">📖 Current Chapter</button>
+            <button type="button" data-gsf="PAGE" id="gsf-page-pill" onclick="setGlobalSearchFilter('PAGE')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">📄 Current Page</button>
+            <span class="text-slate-200 select-none">|</span>
             <button type="button" data-gsf="WORDS" onclick="setGlobalSearchFilter('WORDS')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Words &amp; Phrases</button>
             <button type="button" data-gsf="NOTES" onclick="setGlobalSearchFilter('NOTES')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Grammar &amp; Notes</button>
             <button type="button" data-gsf="DIALOGUES" onclick="setGlobalSearchFilter('DIALOGUES')" class="gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Dialogues</button>
@@ -5698,58 +5709,58 @@
         'どんな机': { en: 'What kind of desk?', zh: '怎樣的書桌？', pos: '疑問詞', note: 'どんな asks the type or quality of a noun.' },
         'どの棚': { en: 'Which shelf?', zh: '哪個架子？', pos: '疑問詞', note: 'Pre-noun question modifier どの + 棚.' },
         '上に': { en: 'On / Above / On top', zh: '在上面', pos: '位置', note: 'Spatial noun 上 + existence location particle に.' },
-        '机の上に': { en: 'On the desk', zh: '在書桌上面', pos: '表現', note: 'N + の上に marks existence on top of N.' },
-        '下に': { en: 'Under / Below / Underneath', zh: '在下面', pos: '位置', note: 'Spatial noun 下 + existence location particle に.' },
-        'いすの下に': { en: 'Under the chair', zh: '在椅子下面', pos: '表現', note: 'N + の下に marks existence underneath N.' },
-        '人が': { en: 'A person / people (subject)', zh: '人（主語）', pos: '表現', note: 'Noun 人 + subject marker が.' },
-        '男の人が': { en: 'A man / men (subject)', zh: '男人 / 男性（主語）', pos: '表現', note: '男の人 (man) + subject marker が.' },
-        '女の人が': { en: 'A woman / women (subject)', zh: '女人 / 女性（主語）', pos: '表現', note: '女の人 (woman) + subject marker が.' },
-        '男の子': { en: 'Boy', zh: '男孩子', pos: '名詞', note: '男 (male) + の + 子 (child).' },
-        '女の子': { en: 'Girl', zh: '女孩子', pos: '名詞', note: '女 (female) + の + 子 (child).' },
-        '10': { en: 'Ten (general items)', zh: '十個（通用）', pos: '助数詞', note: 'Native Japanese counter for 10 general items is とお (without 〜つ).' },
-        '白い棚': { en: 'White shelf / rack', zh: '白色的架子', pos: '表現', note: 'i-Adjective 白い modifies noun 棚 directly.' },
-        '黒い箱': { en: 'Black box', zh: '黑色的盒子', pos: '表現', note: 'i-Adjective 黒い modifies noun 箱 directly.' },
-        '大きい机': { en: 'Big desk', zh: '大的書桌', pos: '表現', note: 'i-Adjective 大きい modifies noun 机 directly.' },
-        '小さい子供': { en: 'Small child / little kid', zh: '小孩子', pos: '表現', note: 'i-Adjective 小さい modifies noun 子供 directly.' },
-        '1ドル': { en: 'One dollar ($1)', zh: '一元（1ドル）', pos: '助数詞', note: '1 + ドル = いちドル.' },
-        '5ドル': { en: 'Five dollars ($5)', zh: '五元（5ドル）', pos: '助数詞', note: '5 + ドル = ごドル.' },
-        '10ドル': { en: 'Ten dollars ($10)', zh: '十元（10ドル）', pos: '助数詞', note: '10 + ドル = じゅうドル.' },
-        '100ドル': { en: 'One hundred dollars ($100)', zh: '一百元（100ドル）', pos: '助数詞', note: '100 + ドル = ひゃくドル.' },
-        '1000ドル': { en: 'One thousand dollars ($1,000)', zh: '一千元（1000ドル）', pos: '助数詞', note: '1000 + ドル = せんドル.' },
-        '1万ドル': { en: 'Ten thousand dollars ($10,000)', zh: '一萬元（1万ドル）', pos: '助数詞', note: '10,000 + ドル = いちまんドル.' },
-        '50セント': { en: 'Fifty cents (50¢)', zh: '五十仙（50セント）', pos: '助数詞', note: '50 + セント = ごじゅっセント.' },
-        '100円': { en: 'One hundred yen (¥100)', zh: '一百日圓（100円）', pos: '助数詞', note: '100 + 円 = ひゃくえん.' },
-        '1000円': { en: 'One thousand yen (¥1,000)', zh: '一千日圓（1000円）', pos: '助数詞', note: '1000 + 円 = せんえん.' },
-        '1万円': { en: 'Ten thousand yen (¥10,000)', zh: '一萬日圓（1万円）', pos: '助数詞', note: '10,000 + 円 = いちまんえん.' },
-        'あした': { en: 'Tomorrow', zh: '明天', pos: '名詞', note: 'Relative time noun (takes no particle に).' },
-        'あさって': { en: 'The day after tomorrow', zh: '後天', pos: '名詞', note: 'Two days from today (takes no particle に).' },
-        '今週': { en: 'This week', zh: '本週 / 這星期', pos: '名詞', note: 'Relative time noun (takes no particle に).' },
-        '来週': { en: 'Next week', zh: '下週 / 下星期', pos: '名詞', note: 'Relative time noun (takes no particle に).' },
-        '再来週': { en: 'The week after next', zh: '下下週 / 再下星期', pos: '名詞', note: 'Two weeks from now.' },
-        '先々月': { en: 'The month before last', zh: '上上個月', pos: '名詞', note: 'Two months ago.' },
-        '先月': { en: 'Last month', zh: '上個月', pos: '名詞', note: 'Previous calendar month.' },
-        '今月': { en: 'This month', zh: '這個月', pos: '名詞', note: 'Current calendar month.' },
-        '来月': { en: 'Next month', zh: '下個月', pos: '名詞', note: 'Following calendar month.' },
-        '再来月': { en: 'The month after next', zh: '下下個月', pos: '名詞', note: 'Two months from now.' },
-        'おととし': { en: 'The year before last', zh: '前年', pos: '名詞', note: 'Two years ago (kanji: 一昨年).' },
-        '再来年': { en: 'The year after next', zh: '後年', pos: '名詞', note: 'Two years from now.' },
-        '第2学期': { en: 'Second semester / Term 2', zh: '第二學期', pos: '名詞', note: 'Spring term (January to April at CUHK).' },
-        '戦争': { en: 'War', zh: '戰爭', pos: '名詞', note: 'Sen (battle) + sou (dispute).' },
-        'ミニテスト': { en: 'Quiz / Mini-test', zh: '小測驗', pos: '名詞', note: 'Short classroom test.' },
-        '聴解練習': { en: 'Listening comprehension practice', zh: '聽力練習', pos: '名詞', note: 'Choukai (listening comprehension) + renshuu (practice).' },
-        '休み時間': { en: 'Break time / Recess', zh: '休息時間 / 下課時間', pos: '名詞', note: 'Yasumi (break) + jikan (time).' },
-        '授業時間': { en: 'Class hours / Lesson time', zh: '上課時間', pos: '名詞', note: 'Jugyou (lesson) + jikan (time).' },
-        '時間': { en: 'Time / Hour', zh: '時間 / 小時', pos: '名詞', note: 'Refers to time in general or duration in hours.' },
-        'どのぐらい': { en: 'How long? / About how much?', zh: '多久？ / 大約多少？', pos: '疑問詞', note: 'Asks approximate duration or quantity.' },
-        '1時半': { en: '1:30 (half past one)', zh: '一點半', pos: '名詞', note: '1時 (いちじ) + 半 (はん = half past).' },
-        '馬鞍山': { en: 'Ma On Shan', zh: '馬鞍山', pos: '固有名詞', note: 'District in Sha Tin, New Territories.' },
-        '勉強の後': { en: 'After studying', zh: '溫習之後', pos: '表現', note: 'Noun 勉強 + の + 後 (あと = after in time).' },
-        '涼しい食堂': { en: 'Cool / air-conditioned cafeteria', zh: '涼快的食堂', pos: '表現', note: 'i-Adjective 涼しい modifies noun 食堂 directly.' },
-        '冷たいビール': { en: 'Cold / chilled beer', zh: '冰凍的啤酒', pos: '表現', note: 'i-Adjective 冷たい modifies noun ビール directly.' },
-        '留学します': { en: 'To study abroad', zh: '留學', pos: '動詞', note: 'Destination university/country takes particle に (日本に留学します).' },
-        '呉': { en: 'Wu / Ng (Chinese surname)', zh: '吳（中國人姓氏）', pos: '固有名詞', note: 'Read ゴ in Japanese.' },
-        '洪': { en: 'Hong / Hung (Chinese surname)', zh: '洪（中國人姓氏）', pos: '固有名詞', note: 'Read コー in Japanese.' },
-        '大学': { en: 'University / College', zh: '大學', pos: '名詞', note: 'Dai (great) + gaku (learning).' }
+        '留学します': { en: 'To study abroad', zh: '留學', pos: '動詞', note: 'Destination university/country takes particle に (日本に留学します).', exJp: '来年日本の大学に留学します。', exEn: 'I will study abroad at a Japanese university next year.' },
+        '呉': { en: 'Wu / Ng (Chinese surname)', zh: '吳（中國人姓氏）', pos: '固有名詞', note: 'Read ゴ in Japanese.', exJp: '呉さんは3年生です。', exEn: 'Wu is a 3rd-year student.' },
+        '洪': { en: 'Hong / Hung (Chinese surname)', zh: '洪（中國人姓氏）', pos: '固有名詞', note: 'Read コー in Japanese.', exJp: '洪さんの専攻は経済です。', exEn: 'Hong’s major is Economics.' },
+        '大学': { en: 'University / College', zh: '大學', pos: '名詞', note: 'Dai (great) + gaku (learning).', exJp: 'わたしたちは中文大学の学生です。', exEn: 'We are students at The Chinese University.' },
+        '学校': { en: 'School', zh: '學校', pos: '名詞', note: 'Gaku (study/learning) + kou (school building).', exJp: '学校の授業は1日6時間です。', exEn: 'School classes are 6 hours a day.' },
+        '第1課': { en: 'Lesson 1', zh: '第1課', pos: '名詞', note: 'Dai (ordinal) + ikka (1課, sokuon shift).', exJp: '今日は第1課を勉強します。', exEn: 'Today we study Lesson 1.' },
+        '第2課': { en: 'Lesson 2', zh: '第2課', pos: '名詞', note: 'Dai (ordinal) + nika (2課).', exJp: '第2課は指示代名詞です。', exEn: 'Lesson 2 is demonstrative pronouns.' },
+        '第3課': { en: 'Lesson 3', zh: '第3課', pos: '名詞', note: 'Dai (ordinal) + sanka (3課).', exJp: '第3課で場所の表現を学びます。', exEn: 'We learn place expressions in Lesson 3.' },
+        '第4課': { en: 'Lesson 4', zh: '第4課', pos: '名詞', note: 'Dai (ordinal) + yonka (4課).', exJp: '第4課は存在の表現です。', exEn: 'Lesson 4 is existence expressions.' },
+        '第5課': { en: 'Lesson 5', zh: '第5課', pos: '名詞', note: 'Dai (ordinal) + goka (5課).', exJp: '第5課で「います」を勉強します。', exEn: 'We study "imasu" in Lesson 5.' },
+        '第6課': { en: 'Lesson 6', zh: '第6課', pos: '名詞', note: 'Dai (ordinal) + rokka (6課, sokuon shift).', exJp: '第6課で助数詞を学びます。', exEn: 'We learn counters in Lesson 6.' },
+        '第7課': { en: 'Lesson 7', zh: '第7課', pos: '名詞', note: 'Dai (ordinal) + nanaka (7課).', exJp: '第7課は買い物と形容詞です。', exEn: 'Lesson 7 is shopping and adjectives.' },
+        '第8課': { en: 'Lesson 8', zh: '第8課', pos: '名詞', note: 'Dai (ordinal) + hakka (8課, sokuon shift).', exJp: '第8課で日付と期間を学びます。', exEn: 'We learn dates and durations in Lesson 8.' },
+        '第9課': { en: 'Lesson 9', zh: '第9課', pos: '名詞', note: 'Dai (ordinal) + kyuuka (9課).', exJp: '第9課は曜日と時刻です。', exEn: 'Lesson 9 is days of the week and clock time.' },
+        '第10課': { en: 'Lesson 10', zh: '第10課', pos: '名詞', note: 'Dai (ordinal) + jukka (10課, sokuon shift).', exJp: '第10課は毎日の習慣です。', exEn: 'Lesson 10 is daily habits.' },
+        '第11課': { en: 'Lesson 11', zh: '第11課', pos: '名詞', note: 'Dai (ordinal) + juuikka (11課, sokuon shift).', exJp: '第11課はい形容詞の活用です。', exEn: 'Lesson 11 is i-adjective conjugation.' },
+        '第12課': { en: 'Lesson 12', zh: '第12課', pos: '名詞', note: 'Dai (ordinal) + juunika (12課).', exJp: '第12課はな形容詞の練習です。', exEn: 'Lesson 12 is na-adjective practice.' },
+        'お茶': { en: 'Tea (green tea / tea in general)', zh: '茶／綠茶', pos: '名詞', note: 'Polite prefix お + 茶 (ちゃ).', exJp: '冷蔵庫の中にお茶があります。', exEn: 'There is tea inside the refrigerator.' },
+        '紙': { en: 'Paper / Sheet of paper', zh: '紙／紙張', pos: '名詞', note: 'Counted in flat sheets with 〜枚 (いちまい, にまい).', exJp: 'あの赤い紙を2枚下さい。', exEn: 'Please give me 2 sheets of that red paper.' },
+        '卵': { en: 'Egg', zh: '雞蛋', pos: '名詞', note: 'Counted with 〜つ or 〜個.', exJp: '冷蔵庫の中に卵が10あります。', exEn: 'There are 10 eggs in the refrigerator.' },
+        '第1学期': { en: 'First semester / Term 1', zh: '第一學期', pos: '名詞', note: 'Autumn semester (September to December at CUHK).', exJp: '9月から12月まで第1学期です。', exEn: 'From September to December is Term 1.' },
+        '昭和': { en: 'Showa era (1926–1989)', zh: '昭和（日本年號）', pos: '固有名詞', note: 'Japanese imperial era (1926 = Showa 1; 1974 = Showa 49).', exJp: 'わたしは昭和49年生まれです。', exEn: 'I was born in Showa 49.' },
+        '西暦': { en: 'Western / Gregorian calendar (AD)', zh: '西曆／公元', pos: '名詞', note: 'Contrasts with Japanese imperial era names.', exJp: '昭和49年は西暦何年ですか。', exEn: 'What Western year is Showa 49?' },
+        '旧暦': { en: 'Lunar / traditional calendar', zh: '舊曆／農曆', pos: '名詞', note: 'Used for Lunar New Year (旧暦のお正月) and Mid-Autumn Festival.', exJp: '旧暦のお正月は2月の初めごろです。', exEn: 'Lunar New Year is around early February.' },
+        'お正月': { en: 'New Year / New Year holidays', zh: '新年／正月', pos: '名詞', note: 'Polite prefix お + 正月 (しょうがつ).', exJp: 'お正月の休みは1週間ぐらいあります。', exEn: 'The New Year holiday is about 1 week long.' },
+        '初め': { en: 'Beginning / Early part', zh: '初／開頭', pos: '名詞', note: '2月の初めごろ = around early February.', exJp: '旧暦のお正月は2月の初めごろです。', exEn: 'Lunar New Year is around early February.' },
+        '試験': { en: 'Exam / Test', zh: '考試', pos: '名詞', note: 'あした試験があります = There is an exam tomorrow.', exJp: '昨日の試験は全部できましたか。', exEn: 'Could you do all of yesterday’s exam?' },
+        '授業': { en: 'Class / Lesson / Lecture', zh: '授課／課堂', pos: '名詞', note: '中文大学の授業は9月から4月までです.', exJp: '誕生日の日には授業がたくさんありました。', exEn: 'On my birthday I had many classes.' },
+        '授業料': { en: 'Tuition fee', zh: '學費', pos: '名詞', note: '授業 (classes) + 料 (fee).', exJp: '学校の授業料は1年12万円です。', exEn: 'School tuition is 120,000 yen per year.' },
+        '部屋代': { en: 'Room rent', zh: '房租', pos: '名詞', note: '部屋 (room) + 代 (charge/fee).', exJp: '寮の部屋代は1か月9000円です。', exEn: 'Dorm room rent is 9,000 yen per month.' },
+        '予定': { en: 'Schedule / Plan', zh: '預定／計劃', pos: '名詞', note: '来週の予定 = next week’s schedule.', exJp: '来週の予定を教えてください。', exEn: 'Please tell me next week’s schedule.' },
+        '会社': { en: 'Company / Office / Firm', zh: '公司', pos: '名詞', note: '毎日会社へ行きます = go to the company every day.', exJp: 'わたしは毎日会社へ行きます。', exEn: 'I go to the company every day.' },
+        '病院': { en: 'Hospital / Clinic', zh: '醫院', pos: '名詞', note: 'Long vowel びょう (vs. 美容院 びよういん = hair salon).', exJp: '駅の近くに病院があります。', exEn: 'There is a hospital near the station.' },
+        '晩': { en: 'Evening / Night', zh: '晚上', pos: '名詞', note: '朝から晩まで = from morning till night.', exJp: '昨日は朝から晩までうちにいました。', exEn: 'Yesterday I was at home from morning till night.' },
+        '夕方': { en: 'Evening / Dusk (late afternoon)', zh: '傍晚', pos: '名詞', note: 'Takes no particle に (夕方6時半ごろ).', exJp: '夕方6時半ごろうちへ帰りました。', exEn: 'I returned home around 6:30 in the evening.' },
+        '夜': { en: 'Night / Nighttime', zh: '夜晚／晚上', pos: '名詞', note: 'Opposite of 昼 (ひる = daytime).', exJp: '夜は寮で小説を読みます。', exEn: 'At night I read novels in the dormitory.' },
+        '番組': { en: 'TV / Radio program', zh: '節目', pos: '名詞', note: 'どんな番組を見ますか = What kind of programs do you watch?', exJp: 'よくニュースやドラマなどの番組を見ます。', exEn: 'I often watch programs like news and dramas.' },
+        '新聞': { en: 'Newspaper', zh: '報紙', pos: '名詞', note: '毎朝新聞を読みます = read the newspaper every morning.', exJp: '李さんはあまり新聞を読みません。', exEn: 'Li does not read newspapers very much.' },
+        '音楽': { en: 'Music', zh: '音樂', pos: '名詞', note: '音楽を聞きます = listen to music.', exJp: '夜は時々音楽も聞きます。', exEn: 'At night I sometimes listen to music too.' },
+        '散歩': { en: 'Walk / Stroll', zh: '散步', pos: '名詞', note: '散歩をします = take a stroll.', exJp: '勉強の後は少し散歩をします。', exEn: 'After studying I take a short stroll.' },
+        '気温': { en: 'Air temperature', zh: '氣溫', pos: '名詞', note: '朝の気温は摂氏10度でした.', exJp: '朝の気温は摂氏10度でした。', exEn: 'The morning temperature was 10 degrees Celsius.' },
+        '摂氏': { en: 'Celsius (°C)', zh: '攝氏', pos: '名詞', note: 'Placed before temperature degrees: 摂氏10度.', exJp: '今日の気温は摂氏25度です。', exEn: 'Today’s temperature is 25 degrees Celsius.' },
+        '町': { en: 'Town / City district', zh: '市鎮／城鎮', pos: '名詞', note: '沙田は昔は静かな町でした.', exJp: '沙田は昔は静かな町でした。', exEn: 'Sha Tin used to be a quiet town in the past.' },
+        '団地': { en: 'Housing estate / Apartment complex', zh: '屋邨', pos: '名詞', note: '住宅団地 = residential housing estate.', exJp: '最近立派な住宅団地が増えました。', exEn: 'Recently splendid housing estates have increased.' },
+        '人口': { en: 'Population', zh: '人口', pos: '名詞', note: '沙田の人口もずいぶん多くなりました.', exJp: '沙田の人口もずいぶん多くなりました。', exEn: 'Sha Tin’s population has also grown considerably.' },
+        '品物': { en: 'Goods / Merchandise / Articles', zh: '貨品／商品', pos: '名詞', note: '品物も豊富です = merchandise is also abundant.', exJp: 'この店は品物が豊富です。', exEn: 'This shop has abundant merchandise.' },
+        '料理': { en: 'Cuisine / Cooking / Dish', zh: '料理／飯菜', pos: '名詞', note: 'タイ料理 = Thai food; 日本料理 = Japanese food.', exJp: 'タイ料理をたくさん食べました。', exEn: 'I ate a lot of Thai food.' },
+        '長い': { en: 'Long (length / duration)', zh: '長／長久', pos: 'い形容詞', note: 'Opposite of 短い (みじかい = short).', exJp: '夏休みは4か月あります。長いですね。', exEn: 'Summer vacation is 4 months long. That’s long!' },
+        '忙しい': { en: 'Busy', zh: '忙碌', pos: 'い形容詞', note: 'とても忙しい1日でした = It was a very busy day.', exJp: '昨日はとても忙しい1日でした。', exEn: 'Yesterday was a very busy day.' },
+        '高い': { en: 'High / Tall / Expensive', zh: '高／貴', pos: 'い形容詞', note: 'Opposite of 低い (low) or 安い (cheap).', exJp: 'あそこの高い建物は全部団地ですか。', exEn: 'Are those tall buildings over there all housing estates?' },
+        '多い': { en: 'Many / Numerous / Abundant', zh: '多', pos: 'い形容詞', note: 'Adverbial form: 多くなります (become numerous).', exJp: '沙田の人口もずいぶん多くなりました。', exEn: 'Sha Tin’s population has also become much larger.' },
+        'いい': { en: 'Good / Nice / Fine', zh: '好的', pos: 'い形容詞', note: 'Modifies nouns as いい; conjugates from よい (よかった, よくない).', exJp: 'それはいいですね。', exEn: 'That’s really nice!' }
       };
 
       function resolveOralTranslation(jp, kana) {
@@ -5797,8 +5808,8 @@
               en: tr.en,
               zh: tr.zh,
               mnemonic: tr.note,
-              exJp: clean,
-              exEn: tr.en
+              exJp: tr.exJp || clean,
+              exEn: tr.exEn || tr.en
             });
             existingJp.add(clean);
           }
@@ -9616,6 +9627,7 @@
       const grid = document.getElementById('deck-list-grid');
       if (!grid) return;
       const q = (document.getElementById('deck-search-input')?.value || '').trim().toLowerCase();
+      const normQ = normalizeSearchText(q);
       const cards = getScopedCards().filter(c => {
         const reps = srsData[c.id]?.reps || 0;
         const weak = isWeakCard(c.id);
@@ -9624,8 +9636,10 @@
         if (deckStatusFilter === 'LEARNING' && reps !== 1) return false;
         if (deckStatusFilter === 'MASTERED' && reps < 2) return false;
         if (!q) return true;
-        return [c.jp, c.kana, c.romaji, formatStandardRomaji(c.romaji), c.en, c.zh, srsData[c.id]?.customNote]
+        const rawMatch = [c.jp, c.kana, c.romaji, formatStandardRomaji(c.romaji), c.en, c.zh, srsData[c.id]?.customNote]
           .some(v => (v || '').toLowerCase().includes(q));
+        if (rawMatch) return true;
+        return normQ && normalizeSearchText([c.jp, c.kana, c.romaji, c.en, c.zh].join(' ')).includes(normQ);
       });
 
       const blindCls = deckAudioBlindMode ? 'blur-sm select-none cursor-pointer transition-all duration-200' : '';
@@ -10662,6 +10676,26 @@
         trapEl.classList.add('hidden');
       }
 
+      const exBox = document.getElementById('pop-example-box');
+      if (exBox) {
+        const cleanExJp = (card.exJp || '').trim();
+        const cleanCardJp = (card.jp || '').replace(/（.*?）/g, '').trim();
+        if (cleanExJp && cleanExJp !== cleanCardJp) {
+          exBox.classList.remove('hidden');
+          document.getElementById('pop-example-jp').innerHTML = applyKanjiFallbackRuby(cleanExJp);
+          document.getElementById('pop-example-en').textContent = card.exEn || '';
+          const exAudioBtn = document.getElementById('pop-example-audio-btn');
+          if (exAudioBtn) {
+            exAudioBtn.onclick = (e) => {
+              e.stopPropagation();
+              speakJapanese(cleanExJp);
+            };
+          }
+        } else {
+          exBox.classList.add('hidden');
+        }
+      }
+
       document.getElementById('pop-audio-btn').onclick = () => speakJapanese(card.kana || card.jp);
       const jumpBtn = document.getElementById('pop-jump-btn');
       if (jumpBtn) {
@@ -11017,9 +11051,60 @@
 
     function normalizeSearchText(str) {
       if (!str) return '';
-      // Convert Katakana to Hiragana before normalizing so hiragana/katakana queries match cross-script
-      const hira = str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
-      return normalizeJapaneseAnswer(hira);
+      // Convert any Katakana to Hiragana first
+      let s = str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+      // Append romanized version if string contains Hiragana so romaji queries match Japanese kana directly
+      let romFromKana = '';
+      if (/[\u3041-\u3096]/.test(s)) {
+        romFromKana = ' ' + kanaToRomaji(s);
+      }
+      const combined = (s + romFromKana)
+        .toLowerCase()
+        .replace(/[\s\u3000。、．，！？!?,.'"`（）()・〜~「」：\-]/g, '')
+        .replace(/ō/g, 'ou')
+        .replace(/ū/g, 'uu')
+        .replace(/ā/g, 'aa')
+        .replace(/ē/g, 'ee')
+        .replace(/ī/g, 'ii')
+        .replace(/jyu/g, 'ju')
+        .replace(/jya/g, 'ja')
+        .replace(/jyo/g, 'jo')
+        .replace(/syu/g, 'shu')
+        .replace(/sya/g, 'sha')
+        .replace(/syo/g, 'sho')
+        .replace(/tyu/g, 'chu')
+        .replace(/tya/g, 'cha')
+        .replace(/tyo/g, 'cho')
+        .replace(/tsu/g, 'tu')
+        .replace(/shi/g, 'si')
+        .replace(/chi/g, 'ti')
+        .replace(/fu/g, 'hu')
+        .replace(/oo/g, 'ou');
+      return combined;
+    }
+
+    function textToSearchableRomaji(jpStr) {
+      if (!jpStr) return '';
+      const keys = Object.keys(KANJI_READING_FALLBACK).sort((a, b) => b.length - a.length);
+      let kanaExpanded = '';
+      let idx = 0;
+      while (idx < jpStr.length) {
+        let hit = null;
+        for (let k = 0; k < keys.length; k++) {
+          if (jpStr.startsWith(keys[k], idx)) {
+            hit = keys[k];
+            break;
+          }
+        }
+        if (hit) {
+          kanaExpanded += KANJI_READING_FALLBACK[hit];
+          idx += hit.length;
+        } else {
+          kanaExpanded += jpStr[idx];
+          idx += 1;
+        }
+      }
+      return kanaToRomaji(kanaExpanded);
     }
 
     function escapeSearchHtml(str) {
@@ -11035,8 +11120,10 @@
         const cleanJp = (c.jp || '').replace(/（.*?）/g, '').trim();
         seenWords.add(cleanJp);
         const romaji = formatStandardRomaji(c.romaji || kanaToRomaji(c.kana || cleanJp));
+        const exRomaji = textToSearchableRomaji(c.exJp || '');
         globalSearchIndex.push({
           type: 'WORDS',
+          lesson: c.lesson,
           badge: c.lesson === 'ESS' ? '挨拶' : `第${c.lesson}課`,
           subBadge: c.pos,
           title: c.jp,
@@ -11049,7 +11136,7 @@
           actionLabel: 'Card →',
           actionType: 'CARD',
           actionPayload: c.id,
-          haystack: normalizeSearchText([c.jp, c.kana, c.romaji, romaji, c.en, c.zh, c.mnemonic, c.exJp].join(' '))
+          haystack: normalizeSearchText([c.jp, c.kana, c.romaji, romaji, c.en, c.zh, c.mnemonic, c.exJp, exRomaji].join(' '))
         });
       });
 
@@ -11062,6 +11149,7 @@
         const romaji = formatStandardRomaji(kanaToRomaji(kana));
         globalSearchIndex.push({
           type: 'WORDS',
+          lesson: info.lesson || '1',
           badge: info.lesson === 'ESS' ? '挨拶' : `第${info.lesson || '1'}課`,
           subBadge: info.pos || '語彙',
           title: cleanJp,
@@ -11080,10 +11168,12 @@
 
       // 3. Grammar & Cultural Notes (学習ポイント・豆知識・語彙整理)
       CHAPTER_NOTES.forEach(note => {
-        const exText = (note.examples || []).map(ex => `${ex.jp} ${ex.en}`).join(' ');
+        const exText = (note.examples || []).map(ex => `${ex.jp} ${textToSearchableRomaji(ex.jp)} ${ex.en}`).join(' ');
         const ptsText = (note.points || []).join(' ');
+        const jpNotesRomaji = textToSearchableRomaji([note.title, note.formula, note.takeaway, ptsText].join(' '));
         globalSearchIndex.push({
           type: 'NOTES',
+          lesson: note.lesson,
           badge: note.lesson === 'ESS' ? '挨拶' : `第${note.lesson}課`,
           subBadge: `${note.id} • ${note.category}`,
           title: note.title,
@@ -11096,7 +11186,7 @@
           actionLabel: 'Open Note →',
           actionType: 'SECTION_NOTES',
           actionPayload: note.lesson,
-          haystack: normalizeSearchText([note.id, note.title, note.formula, note.takeaway, ptsText, exText].join(' '))
+          haystack: normalizeSearchText([note.id, note.title, note.formula, note.takeaway, ptsText, exText, jpNotesRomaji].join(' '))
         });
       });
 
@@ -11105,8 +11195,10 @@
         (dlgs || []).forEach(dlg => {
           (dlg.lines || []).forEach(ln => {
             const romaji = formatStandardRomaji(kanaToRomaji(ln.kana || ln.jp));
+            const fallbackRomaji = textToSearchableRomaji(ln.jp);
             globalSearchIndex.push({
               type: 'DIALOGUES',
+              lesson: secKey,
               badge: secKey === 'ESS' ? '挨拶' : `第${secKey}課`,
               subBadge: `本文 • ${ln.sp}`,
               title: ln.jp,
@@ -11119,7 +11211,7 @@
               actionLabel: 'Dialogue →',
               actionType: 'SECTION_DIALOGUE',
               actionPayload: secKey,
-              haystack: normalizeSearchText([ln.sp, ln.jp, ln.kana, romaji, ln.en, ln.zh, dlg.title].join(' '))
+              haystack: normalizeSearchText([ln.sp, ln.jp, ln.kana, romaji, fallbackRomaji, ln.en, ln.zh, dlg.title].join(' '))
             });
           });
         });
@@ -11133,6 +11225,7 @@
             const romaji = formatStandardRomaji(kanaToRomaji(rd));
             globalSearchIndex.push({
               type: 'COUNTERS',
+              lesson: lessonNum,
               badge: `第${lessonNum}課`,
               subBadge: set.title,
               title: jp,
@@ -11155,6 +11248,7 @@
         const romaji = formatStandardRomaji(kanaToRomaji(rd));
         globalSearchIndex.push({
           type: 'COUNTERS',
+          lesson: '8',
           badge: '第8課',
           subBadge: 'Calendar Date (〜日)',
           title: day,
@@ -11172,30 +11266,70 @@
       });
     }
 
+    function updateGlobalSearchContextLabels() {
+      const chPill = document.getElementById('gsf-chapter-pill');
+      const pgPill = document.getElementById('gsf-page-pill');
+      const secLabel = SECTION_META[activeSection]?.badge || activeSection;
+      if (chPill) {
+        chPill.textContent = activeSection === 'ALL' ? '📖 All Chapters' : `📖 ${secLabel}`;
+      }
+      if (pgPill) {
+        let pageName = 'Notes';
+        if (activeSection === 'COUNTERS') {
+          const cntNames = { matrix: 'Master Table', deck: 'Word List', srs: 'Counter Cards', drill: 'Practice Drill', typing: 'Typing Game' };
+          pageName = cntNames[counterSubMode] || 'Counters';
+        } else if (activeSection === 'KANAKANJI') {
+          const kkNames = { chart: '50-On Chart', lookalike: 'Similar Kana', kanji: 'Kanji Traps', typing: 'Typing Game' };
+          pageName = kkNames[kanaKanjiSubMode] || 'Kana & Kanji';
+        } else {
+          const subNames = { notes: 'Notes', dialogue: 'Dialogue', srs: 'Cards', recall: 'Quiz', cloze: 'Fill-in', pattern: 'Drills', translate: 'Translate', deck: 'Words' };
+          pageName = subNames[lessonSubMode] || 'Notes';
+        }
+        pgPill.textContent = `📄 ${pageName}`;
+      }
+    }
+
+    function matchesCurrentChapterScope(it) {
+      if (activeSection === 'ALL') return true;
+      if (activeSection === 'COUNTERS') return it.type === 'COUNTERS';
+      if (activeSection === 'KANAKANJI') return it.type === 'WORDS';
+      return it.lesson === activeSection;
+    }
+
+    function matchesCurrentPageScope(it) {
+      if (!matchesCurrentChapterScope(it)) return false;
+      if (activeSection === 'COUNTERS') {
+        if (counterSubMode === 'deck' || counterSubMode === 'srs') return it.type === 'WORDS';
+        return it.type === 'COUNTERS';
+      }
+      if (activeSection === 'KANAKANJI') {
+        return it.type === 'WORDS';
+      }
+      if (lessonSubMode === 'notes') return it.type === 'NOTES';
+      if (lessonSubMode === 'dialogue') return it.type === 'DIALOGUES';
+      if (['srs', 'recall', 'deck'].includes(lessonSubMode)) return it.type === 'WORDS';
+      if (['cloze', 'pattern', 'translate'].includes(lessonSubMode)) {
+        return it.type === 'DIALOGUES' || it.type === 'NOTES';
+      }
+      return true;
+    }
+
     function openGlobalSearchModal() {
       hideGlossPopover();
       closeSettingsMenu();
       closeProgressPopover();
       if (!globalSearchIndex.length) buildGlobalSearchIndex();
+      updateGlobalSearchContextLabels();
       const modal = document.getElementById('global-search-modal');
-      const dialog = document.getElementById('global-search-dialog');
       const input = document.getElementById('global-search-input');
-      if (modal) {
-        modal.classList.remove('hidden', 'animate-backdrop');
-        void modal.offsetWidth;
-        modal.classList.add('animate-backdrop');
-      }
-      if (dialog) {
-        dialog.classList.remove('animate-modal');
-        void dialog.offsetWidth;
-        dialog.classList.add('animate-modal');
-      }
+      if (!modal) return;
+      modal.classList.remove('hidden');
       renderGlobalSearchResults();
       if (input) {
         setTimeout(() => {
           input.focus();
           input.select();
-        }, 30);
+        }, 40);
       }
     }
 
@@ -11204,11 +11338,11 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function setGlobalSearchFilter(filter) {
-      globalSearchFilter = filter;
+    function setGlobalSearchFilter(filterType) {
+      globalSearchFilter = filterType || 'ALL';
       document.querySelectorAll('.gsf-pill').forEach(btn => {
-        const act = btn.getAttribute('data-gsf') === filter;
-        btn.className = act
+        const active = btn.getAttribute('data-gsf') === globalSearchFilter;
+        btn.className = active
           ? 'gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-[#4F46E5] text-white'
           : 'gsf-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200';
       });
@@ -11216,18 +11350,23 @@
     }
 
     function renderGlobalSearchResults() {
+      const input = document.getElementById('global-search-input');
       const box = document.getElementById('global-search-results');
       const countEl = document.getElementById('global-search-count');
-      const input = document.getElementById('global-search-input');
       if (!box) return;
 
       const rawQ = (input ? input.value : '').trim();
       const normQ = normalizeSearchText(rawQ);
       const rawTerms = rawQ.toLowerCase().split(/\s+/).filter(Boolean).map(normalizeSearchText).filter(Boolean);
 
-      const pool = globalSearchFilter === 'ALL'
-        ? globalSearchIndex
-        : globalSearchIndex.filter(it => it.type === globalSearchFilter);
+      let pool = globalSearchIndex;
+      if (globalSearchFilter === 'CHAPTER') {
+        pool = globalSearchIndex.filter(matchesCurrentChapterScope);
+      } else if (globalSearchFilter === 'PAGE') {
+        pool = globalSearchIndex.filter(matchesCurrentPageScope);
+      } else if (globalSearchFilter !== 'ALL') {
+        pool = globalSearchIndex.filter(it => it.type === globalSearchFilter);
+      }
 
       let matches;
       if (!normQ) {
