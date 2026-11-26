@@ -9266,6 +9266,7 @@
       });
 
       const notesHtml = notes.map(note => {
+        const clarifyInfo = getNoteClarification(note);
         const chipsHtml = (note.counterChips || []).map(grp => `
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
             <div class="flex items-center justify-between">
@@ -9309,6 +9310,17 @@
               <ul class="space-y-1.5 text-xs sm:text-sm text-slate-700 list-disc pl-5 leading-relaxed">
                 ${note.points.map(pt => `<li>${annotateJapaneseText(pt)}</li>`).join('')}
               </ul>
+
+              ${clarifyInfo ? `
+                <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-1.5">
+                  <div class="flex flex-wrap items-center justify-between gap-1.5">
+                    <span class="text-[11px] font-extrabold text-emerald-900">🔍 Form &amp; Usage Clarification (用法・言い換え比較)</span>
+                    <span class="px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-[10px] font-extrabold text-emerald-800">${clarifyInfo.badge}</span>
+                  </div>
+                  <p class="font-jp text-xs sm:text-sm font-extrabold text-slate-900">${annotateJapaneseText(clarifyInfo.pair)}</p>
+                  <p class="text-xs text-slate-700 leading-relaxed">${annotateJapaneseText(clarifyInfo.detail)}</p>
+                </div>
+              ` : ''}
 
               ${note.warning ? `
                 <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 font-semibold">
@@ -9404,6 +9416,126 @@
       ` : '';
 
       container.innerHTML = notesHtml + oralBankHtml;
+    }
+
+    const NOTE_CLARIFICATIONS = {
+      'ESS-1': { badge: 'Spelling Rule (No Difference in Sound)', pair: 'こんにちは / こんばんは（は = "wa"） vs. ×こんにちわ / ×こんばんわ', detail: 'Both greetings are always spelled with the topic particle は (pronounced "wa"), never わ, because they originate from 今日（こんにち）は and 今晩（こんばん）は.' },
+      'ESS-2': { badge: 'Register Variant (Polite vs. Shorter)', pair: 'どうぞよろしくお願いします vs. どうぞよろしく', detail: 'Both mean "Pleased to meet you." どうぞよろしくお願いします is full polite form (use with teachers/first meetings); どうぞよろしく is slightly shorter and friendlier.' },
+      'ESS-3': { badge: 'Politeness Variant', pair: 'V-てください vs. V-て下さい', detail: 'Both have identical pronunciation and meaning ("Please do..."). In modern textbook style, auxiliary ください after a verb te-form is usually written in hiragana (聞いてください).' },
+      'ESS-4': { badge: 'Time-of-Day vs. Action Request', pair: 'おはようございます（朝） / こんにちは（昼） / こんばんは（夜）', detail: 'Greetings switch strictly by time of day, whereas classroom requests always attach ください directly to the verb te-form (聞いてください, 書いてください).' },
+      '1-1': { badge: 'Topic vs. Subject Marker', pair: 'N1 は N2 です（は = "wa"）', detail: 'Particle は is written は but always pronounced "wa" when marking a topic. Unlike English "am/is/are", です stays unchanged for I, you, he, she, and they.' },
+      '1-2': { badge: 'Same Meaning (Written vs. Spoken)', pair: 'ではありません vs. じゃありません', detail: 'Both mean "is not / am not / are not" with the exact same grammatical function. ではありません is standard polite/written style; じゃありません is the everyday spoken contraction.' },
+      '1-3': { badge: 'Punctuation & Subject Omission', pair: '〜ですか。（Period 。, not ?） ／ （わたしは）学生です', detail: 'Because sentence-final か already marks a question, standard Japanese uses 。 instead of ?. Once the topic is clear, repeating わたしは in the answer is optional.' },
+      '1-4': { badge: 'Particle Replacement (Never Stack)', pair: 'N2 も X です vs. ×N2 はも X です', detail: 'When the predicate stays identical and only the subject changes, も ("also") completely replaces は. Never write はも together.' },
+      '1-5': { badge: 'Modifier Order (N1 modifies N2)', pair: 'N1 の N2（中文大学の学生 = CUHK student）', detail: 'The modifying noun always comes BEFORE の and the main noun comes AFTER の—the reverse of English "student of CUHK".' },
+      '1-6': { badge: 'Pronunciation Shift (なん vs. なに)', pair: '何ですか（なんですか） vs. 何がいますか（なにがいますか）', detail: '何 is read なん before d/t/n sounds and counters (何ですか, 何年生, 何人), and なに before particles like が or を (何が, 何を).' },
+      '1-7': { badge: 'Reciprocal Question Shortening', pair: '李さんは何年生ですか → 陳さんは。', detail: 'After answering a question, you can bounce the same question back simply with ［Name］さんは。 instead of repeating the whole predicate.' },
+      '1-8': { badge: 'Title & Bowing Distinction', pair: '〜さん（他人） vs. ×わたしさん（自分） ／ 〜先生 vs. 教師', detail: 'Never attach さん to your own name. Use 先生 when addressing or referring to a teacher respectfully; 教師 is only a neutral job description.' },
+      '1-9': { badge: 'University vs. School Terms', pair: '学生（がくせい） vs. 生徒（せいと） ／ あなたたち vs. あなたがた', detail: '学生 refers to university/college students, while 生徒 refers to primary/secondary pupils. あなたがた is the polite plural of あなた.' },
+      '1-10': { badge: 'Faculty vs. Major Naming', pair: '［学部名］の学生 vs. 専攻は［専攻名］です', detail: '学部 (がくぶ) names the broader faculty (e.g. 工学部, 文学部), while 専攻 (せんこう) names your specific major field (e.g. 言語学, 電子工学).' },
+      '2-1': { badge: 'Perspective Shift Across Speakers', pair: 'これ（話し手） ↔ それ（聞き手） ↔ あれ（両方から遠い）', detail: 'If A holds an item and asks これは〜ですか, B replies それは〜です (and vice versa). If both stand side-by-side touching the same item, both use これ.' },
+      '2-2': { badge: 'Standalone Pronoun vs. Pre-Noun Modifier', pair: 'どれ（単独） vs. どの＋名詞', detail: 'どれ stands alone as a noun ("which one?"), whereas どの must always be followed directly by a noun (どの本 = which book).' },
+      '2-3': { badge: 'Question Word Pairing', pair: 'だれの＋名詞（誰の） vs. どれ（どれ）', detail: 'だれ asks "who" and だれの + Noun asks "whose [noun]". Do not confuse だれ (who) with どれ (which one).' },
+      '2-4': { badge: 'Noun Ellipsis After の', pair: 'わたしの本です ＝ わたしのです', detail: 'Both mean "It is my book / It is mine." Once the noun (本) is clear from context, omitting it after の makes the reply more natural.' },
+      '2-5': { badge: 'Same Subject vs. Different Subject', pair: 'X は A ではありません。B でもありません。（同一主語） vs. N2 も X ではありません（別主語）', detail: 'Use 〜でもありません when negating a second predicate for the SAME item; use N2 も 〜ではありません when the subject changes.' },
+      '2-6': { badge: 'Same Meaning (Formal vs. Conversational)', pair: 'はい、そうです vs. ええ、そうです', detail: 'Both confirm a yes/no statement ("Yes, that’s right"). はい is slightly crisper/formal, while ええ is warm and conversational.' },
+      '2-7': { badge: 'Giving & Receiving Perspective', pair: 'A：どうぞ（これは何ですか） → B：それは［物］です', detail: 'Once the gift is handed into B’s hands, B asks これは何ですか ("What is this in my hands?") and A answers それは〜です ("That in your hands is...").' },
+      '2-8': { badge: 'Standalone vs. Modifier Rule', pair: 'これ・それ・あれ・どれ（＋は/が/の） vs. この・その・あの・どの＋名詞', detail: 'The れ-series never precedes a noun directly; the の-series never stands alone without a following noun.' },
+      '3-1': { badge: 'Location Pronoun vs. Pre-Noun Modifier', pair: 'ここ・そこ・あそこ（場所代名詞） vs. この・その・あの＋場所名詞', detail: 'ここ means "this place / here" on its own, whereas この must modify a noun (この部屋 = this room, この建物 = this building).' },
+      '3-2': { badge: 'Location Question', pair: '［場所・物］はどこですか vs. ［場所］に何がありますか', detail: 'Use ［X］はどこですか when you already know X and want its location; use ［Place］に何がありますか to ask what exists at that place.' },
+      '3-3': { badge: 'Obligatory Noun Following', pair: 'この本 / その部屋 / あの建物 vs. ×これは本 / ×それは部屋（意味が変化）', detail: 'この本 means "this book" (noun phrase), whereas これは本です is a full sentence ("This is a book").' },
+      '3-4': { badge: '3+ Choices vs. 2 Choices', pair: 'どの＋名詞（3つ以上） vs. どちら（2つ・方向）', detail: 'Use どの + Noun when choosing among three or more items/rooms; use どちら when choosing between two options or asking direction.' },
+      '3-5': { badge: 'Function vs. Geographic Name', pair: 'そこは何ですか（用途・施設の種類） vs. そこはどこですか（地名・場所）', detail: '何ですか asks what a building/room is used for (e.g. 食堂, 図書館); どこですか asks for a district or geographic name (e.g. 大埔, 沙田).' },
+      '3-6': { badge: 'Adjacent Same-Category Rooms', pair: 'A の隣は B です（同じ種類の部屋・建物）', detail: '隣 (となり) is used for things of the same category side-by-side (room next to room, building next to building); use そば / 近く for general proximity.' },
+      '3-7': { badge: 'Irregular A-Series Spelling', pair: 'あそこ（場所） vs. あれ（物）・あの（連体）・あちら（方向）', detail: 'Notice that only the place demonstrative takes そ inside (あそこ, never *あこ), while あれ・あの・あちら do not.' },
+      '4-1': { badge: 'Inanimate vs. Animate Existence', pair: '〜があります（無生物・植物） vs. 〜がいます（人・動物）', detail: 'Even though trees and flowers (木・花) are biologically alive, Japanese classifies plants as non-self-moving and uses あります.' },
+      '4-2': { badge: 'Word Order & Information Focus', pair: '［場所］に［物］があります vs. ［物］は［場所］にあります', detail: 'Both describe the same fact. Put ［場所］に first when introducing what is at a place; put ［物］は first when telling where a known item is located.' },
+      '4-3': { badge: 'Subject Particle Shift in Negation', pair: '［物］があります（肯定） → ［物］はありません（否定）', detail: 'In negative existence statements, subject marker が shifts to topic/contrast marker は (ボールペンはありません).' },
+      '4-4': { badge: 'Plain Negation vs. Contrastive Negation', pair: '〜にありません vs. 〜にはありません（他にある暗示）', detail: 'Adding は after に (〜にはありません) emphasizes that it is not HERE (implying it is somewhere else, e.g. あちらにありますよ).' },
+      '4-5': { badge: 'Polite Direction vs. Place Pronoun', pair: 'こちら・そちら・あちら（方向・丁寧） vs. ここ・そこ・あそこ（場所）', detail: 'こちら-series indicates direction ("this way / over that way") and also serves as a politer equivalent of ここ・そこ・あそこ.' },
+      '4-6': { badge: 'Exhaustive Listing Only', pair: 'A と B（全部列挙） vs. A や B（部分例示）', detail: 'と implies you are naming every item in the group ("A and B, and nothing else"). Never combine と with など.' },
+      '4-7': { badge: 'Partial Sample Listing', pair: 'A や B（など） vs. A と B', detail: 'や implies there are other unmentioned items besides A and B ("A, B, etc."). Adding など makes the "and so on" nuance explicit.' },
+      '4-8': { badge: 'Spatial Back vs. Temporal After', pair: '後ろ（うしろ＝空間の背後） vs. 後（あと＝時間の後）', detail: 'Both use the kanji 後, but 後ろ（うしろ） means physically behind (机の後ろ), while 後（あと） means after in time (晩御飯の後).' },
+      '4-9': { badge: 'Short vs. Long Vowel Trap', pair: '病院（びょういん＝hospital） vs. 美容院（びよういん＝hair salon）', detail: '病院 has a single long syllable びょう (byou), whereas 美容院 has two separate syllables び・よう (bi-you).' },
+      '5-1': { badge: 'Living Creatures vs. Inanimate Objects', pair: '人がいます / 魚がいます vs. 本があります / 木があります', detail: 'People, animals, birds, and live fish take います. (Note: fish sold as food at a fish shop take あります.)' },
+      '5-2': { badge: 'Indefinite Question vs. Total Negation', pair: '何かいますか → はい、います ／ いいえ、何もいません', detail: '何か (なにか) asks "is anything there?"; 何も + negative verb (何もいません / 何もありません) means "nothing is there".' },
+      '5-3': { badge: 'Yes/No vs. Specific Species Question', pair: '何かいますか（有無の確認） vs. 何がいますか（種類の質問）', detail: '何かいますか expects はい/いいえ; 何がいますか asks what specific creature is there (e.g. こいがいます).' },
+      '5-4': { badge: 'Someone vs. Nobody', pair: 'だれかいますか → はい、います ／ いいえ、だれもいません', detail: 'だれか means "someone/anyone" in questions; だれも + negative verb (だれもいません) means "nobody/no one".' },
+      '5-5': { badge: 'Yes/No vs. Specific Person Question', pair: 'だれかいますか（在否の確認） vs. だれがいますか（人物の質問）', detail: 'だれかいますか asks whether anyone at all is present; だれがいますか asks who specifically is present.' },
+      '5-6': { badge: 'Addition & Exclusion Pattern', pair: 'N のほかに（〜がいます） vs. N のほかには（だれもいません・何もありません）', detail: 'Attach のほかに after a noun for "besides N"; add は (〜のほかには) when followed by a negative verb.' },
+      '5-7': { badge: 'Discourse Topic Flow', pair: 'A に B があります。B には C がいます。', detail: 'Introduce B with が in the first sentence, then refer back to B as the location topic with には in the second sentence.' },
+      '5-8': { badge: 'Next Door vs. Beside', pair: '隣（となり＝同種の隣） vs. そば（すぐ近く・異種も可）', detail: '隣 is used between matching items (house next to house); そば means right beside anything (木のそばに猫がいます).' },
+      '5-9': { badge: 'Subject Particle with Interrogatives', pair: 'だれが / 何が（必ず「が」） vs. ×だれは / ×何は', detail: 'Interrogative words like だれ and 何 in subject position always take が, never topic marker は.' },
+      '6-1': { badge: 'Pronunciation Shift Rules', pair: '3本（さんぼん＝濁音） vs. 1・6・8・10本（いっぽん・ろっぽん・はっぽん・じゅっぽん＝促音）', detail: 'Counters starting with h- (本) shift to b- after 3/何 and to p- after 1, 6, 8, 10; counters starting with s/k/t (冊・課・回) double the consonant after 1, 6, 8, 10.' },
+      '6-2': { badge: 'Zero Particle Between 何か and Noun', pair: '何か果物がありますか vs. ×何かの果物がありますか', detail: 'Place 何か directly before a category noun (何か飲み物, 何か食べ物) without inserting の.' },
+      '6-3': { badge: 'Adverbial Counter Placement', pair: 'みかんが8つあります vs. ×みかんが8つのあります', detail: 'Quantities (Number + Counter) stand directly before the verb with no particle (の/を/が) after the counter.' },
+      '6-4': { badge: 'Affirmative Meaning with Negative Verb', pair: '1つしかありません（＝1つだけあります） vs. ×1つしかあります', detail: 'しか ("only") grammatically requires a negative ending (ありません / いません) even though the meaning is positive ("there is only one").' },
+      '6-5': { badge: 'Inclusive Series Listing', pair: 'A も B も C も います vs. A と B と C がいます', detail: 'Repeating も on every item emphasizes "all of A, B, and C are present as well".' },
+      '6-6': { badge: 'Nationality vs. Headcount Reading', pair: '何人（なんにん＝人数） vs. 何人（なにじん＝国籍）', detail: 'Same kanji 何人: read なんにん to ask "how many people?", and なにじん to ask "what nationality?".' },
+      '6-7': { badge: 'People-Only vs. General Quantity Adverb', pair: 'おおぜい（人専用） vs. たくさん（物・人両方）', detail: 'おおぜい can ONLY describe people (子供がおおぜいいます); たくさん works for both inanimate things and people.' },
+      '7-1': { badge: 'Price vs. Quantity Question', pair: 'いくら（値段：How much?） vs. いくつ（数量：How many?）', detail: 'Use いくら to ask the monetary price (1ついくらですか); use いくつ to ask how many items there are.' },
+      '7-2': { badge: 'Attributive vs. Predicative i-Adjective', pair: '大きいオレンジ（名詞修飾） vs. オレンジは大きいです（述語）', detail: 'i-Adjectives attach directly to nouns in plain 〜い form without な or の; add です only at the end of a polite predicate.' },
+      '7-3': { badge: 'Nominalizing Pronoun の', pair: '大きいの（＝大きいオレンジ） vs. ×大きいのはオレンジ', detail: 'Attaching の after an i-adjective turns it into a noun phrase ("the big one") that can take は, が, or を.' },
+      '7-4': { badge: 'Clause-Connective Pause Form (中止形)', pair: 'Clause 1 で、Clause 2 です（です → で）', detail: 'To join two noun/copula sentences smoothly into one, change the first sentence’s です to で.' },
+      '7-5': { badge: 'Polite Request Form', pair: '〜を下さい（名詞＋を下さい） vs. 〜てください（動詞て形＋ください）', detail: 'Use Noun + を下さい when asking for an object in a shop; use Verb-て + ください when asking someone to perform an action.' },
+      '7-6': { badge: 'Order Word Order Trap', pair: 'みかんを10下さい vs. ×みかん10を下さい', detail: 'Always place particle を right after the item noun, and place the quantity counter right before 下さい.' },
+      '7-7': { badge: 'Decision Transition', pair: 'それでは（丁寧・書き言葉） vs. じゃ（会話・口語）', detail: 'Both mean "Well then / In that case" when deciding on an order; じゃ is the casual spoken contraction of では / それでは.' },
+      '7-8': { badge: 'Unit Price vs. Combined Total Price', pair: '1つ2ドルです（単価：で不要） vs. 10で20ドルです（合計：で必要）', detail: 'Never use で for a single item (*1つで2ドルです is incorrect); use で when grouping 2 or more items into a total price.' },
+      '7-9': { badge: 'Price Nominalizer の', pair: '5ドルのを1本下さい（5ドルの＝5ドルのペン）', detail: 'の replaces the repeated item name after a price (5ドルの), followed directly by object marker を.' },
+      '7-10': { badge: 'Combining Multiple Orders', pair: 'A を［数量］と B を［数量］下さい', detail: 'Connect two ordered item+quantity phrases with と and say 下さい once at the very end.' },
+      '7-11': { badge: 'Intensifier Pairing', pair: 'とてもおいしいです（肯定） vs. あまりおいしくないです（否定）', detail: 'とても ("very") pairs with affirmative adjectives/verbs, whereas あまり ("not very") pairs with negative forms.' },
+      '7-12': { badge: 'Shop Greeting', pair: 'いらっしゃいませ（店員の挨拶）', detail: 'Standard greeting from shop/restaurant staff to entering customers; customers do not repeat it back.' },
+      '7-13': { badge: 'Color Noun vs. Color i-Adjective', pair: '白い・黒い・赤い・青い（い形容詞） vs. 緑・黄色・茶色（名詞＋の）', detail: 'Only White, Black, Red, and Blue/Green have native i-adjective forms (白い紙); other colors like 緑 (green) link with の (緑の紙).' },
+      '8-1': { badge: 'Calendar Date vs. Duration Counter', pair: '1日（ついたち＝1號） vs. 1日（いちにち＝一天）', detail: '1日 is read ついたち when naming the 1st day of a month, and いちにち when measuring a 1-day span.' },
+      '8-2': { badge: 'Calendar Month vs. Month Duration', pair: '4月（しがつ＝四月） vs. 4か月（よんかげつ＝四個月）', detail: 'Calendar months use 〜月 (4月 しがつ, 7月 しちがつ, 9月 くがつ); duration spans use 〜か月 (4か月 よんかげつ).' },
+      '8-3': { badge: 'Start & End Markers', pair: 'A から B まで（両方・単独どちらも可）', detail: 'から marks the start and まで marks the end. Either can also appear alone (e.g. 9月からです / 4月までです).' },
+      '8-4': { badge: 'Duration Length with あります', pair: '夏休みは4か月あります vs. ×夏休みは4か月にあります', detail: 'Do not insert particle に after a duration span when stating how long a break or period lasts.' },
+      '8-5': { badge: 'Point in Time vs. Within a Span', pair: '［期間］の間に（〜があります）', detail: 'A から B までの間に means "within / during the period between A and B".' },
+      '8-6': { badge: 'Point Approximation vs. Duration Approximation', pair: '〜ごろ（時点：2月の初めごろ・6時半ごろ） vs. 〜ぐらい（期間・数量：1週間ぐらい）', detail: 'Use 〜ごろ after a specific point in time ("around 6:30"), and 〜ぐらい after a length of time or quantity ("about 1 week / about 10 people").' },
+      '8-7': { badge: 'Present vs. Past Copula', pair: 'です（現在） → でした（過去） ／ ではありません → ではありませんでした', detail: 'Change です to でした for past dates, days, and states (e.g. 昨日は休みでした).' },
+      '8-8': { badge: 'Static Existence vs. Event Occurrence', pair: '机があります（物の存在） ／ 試験があります・ありました（行事の開催）', detail: 'あります also means an event, class, or exam takes place; mark the event date with に (10日に試験がありました).' },
+      '8-9': { badge: 'Substitute Holiday Rule', pair: '振替休日（ふりかえきゅうじつ）', detail: 'When a Japanese national holiday falls on a Sunday, the following Monday automatically becomes a substitute public holiday.' },
+      '8-10': { badge: 'Zero Particle on Relative Time Words', pair: '昨日・今日・あした・去年・今年（に不要） vs. 10月20日・日曜日（に必要）', detail: 'Relative time words (today, yesterday, next week, every day) never take particle に.' },
+      '9-1': { badge: 'Clock Hour vs. Duration Hour', pair: '4時（よじ＝4點鐘） vs. 4時間（よじかん＝4小時）', detail: '〜時 tells clock time (4時 よじ, 7時 しちじ, 9時 くじ); 〜時間 measures duration in hours (4時間 よじかん).' },
+      '9-2': { badge: 'Habitual Present vs. Future Intent', pair: 'V-ます（習慣・未来の両方） vs. V-ました（過去）', detail: 'Japanese has no separate future tense: V-ます expresses both habitual routines (週に4回ぐらい来ます) and future actions (来年日本へ行きます).' },
+      '9-3': { badge: 'Destination Particle へ vs. に', pair: '［場所］へ行きます / 来ます / 帰ります（へ＝"e"）', detail: 'Particle へ is written へ but pronounced "e". While に can also mark destination, へ emphasizes direction toward a goal.' },
+      '9-4': { badge: 'Animate Past Location vs. Movement', pair: 'うちにいました（滞在・存在） vs. うちへ帰りました（移動）', detail: 'Use いました for staying/being in a place in the past, and へ行きました / へ帰りました for moving to a destination.' },
+      '9-5': { badge: 'Particle Order in Nowhere', pair: 'どこかへ（肯定疑問） → どこへも行きません（全否定） vs. ×どこもへ', detail: 'Always place destination particle へ BEFORE inclusive/negation particle も (どこ + へ + も).' },
+      '9-6': { badge: 'Yes/No Outing vs. Specific Destination', pair: 'どこかへ行きましたか（外出したか） vs. どこへ行きましたか（行き先はどこか）', detail: 'どこかへ asks whether you went anywhere at all (Yes/No); どこへ asks which specific place you went to.' },
+      '9-7': { badge: 'Past Negative Verb Ending', pair: 'V-ません（現在・未来否定） → V-ませんでした（過去否定）', detail: 'Add でした onto V-ません to form the polite past negative ("did not go / did not come").' },
+      '9-8': { badge: '〜ごろ vs. 〜ぐらい (Critical Exam Contrast)', pair: '6時半ごろ（時点＝around 6:30） vs. 1週間ぐらい（期間＝for about 1 week）', detail: 'Point in time (clock time, date, season) → 〜ごろ; length of time or count → 〜ぐらい (never *6時半ぐらい or *1週間ごろ).' },
+      '9-9': { badge: 'Spatial vs. Temporal から〜まで', pair: 'うちからここまで（空間の始点・終点） ／ 朝から晩まで（時間の始点・終点）', detail: 'から ("from") and まで ("to / as far as") work identically for both locations and time spans.' },
+      '9-10': { badge: 'When Particle に Is Required vs. Forbidden', pair: '7時に・日曜日に・25日に（＋に） vs. 今日・昨日・今朝・毎朝（×に）', detail: 'Numerical clock times, dates, years, and days of the week take に; relative time words without numbers never take に.' },
+      '9-11': { badge: 'Topic Contrast on Days of Week', pair: '土曜日にはどこへも行きません（に＋は）', detail: 'Combining に + は (土曜日には) highlights contrast ("As for Saturday, I’m not going anywhere").' },
+      '9-12': { badge: 'Directional Perspective of Movement Verbs', pair: '行きます（離れる方向） ↔ 来ます（近づく方向） ／ 出掛けます（外出） ↔ 帰ります（帰宅）', detail: 'Use 来ます when movement is toward the speaker’s location, and 行きます when movement is away from the speaker.' },
+      '10-1': { badge: 'Same Meaning (Transitive Noun+します vs. Verb)', pair: '勉強をします vs. 勉強します（意味は同じ）', detail: 'Both mean "to study." 勉強をします treats 勉強 as a noun object with を (cannot take another を-object in the same clause), whereas 勉強します acts as a single verb (日本語を勉強します).' },
+      '10-2': { badge: 'Action Location で vs. Existence Location に', pair: '食堂で食べます（動作の場所＝で） vs. 食堂にいます（存在の場所＝に）', detail: 'Use で where an action takes place (eat, study, read, watch); use に only where someone/something exists (います / あります).' },
+      '10-3': { badge: 'Affirmative vs. Negative Frequency Pairing', pair: 'よく V-ます（肯定専用） vs. あまり V-ません（否定専用）', detail: 'よく ("often") pairs with affirmative predicates; あまり ("not very much") must pair with negative predicates.' },
+      '10-4': { badge: 'Total Negation vs. Partial/Contrastive Negation', pair: '毎晩見ません（全く見ない） vs. 毎晩は見ません（毎晩ではない＝時々見る）', detail: 'Adding は after an adverb (すぐは寝ません, 全部はできませんでした, 毎晩は見ません) softens total negation to "not always / not all / not right away".' },
+      '10-5': { badge: 'Pro-Verb します Replacing a Repeated Action', pair: 'どこで飲茶をしましたか → レストランでしました', detail: 'Once the activity (飲茶をしました) is clear, しました alone can stand in for the whole verb phrase in the reply.' },
+      '10-6': { badge: 'Noun+をします vs. Direct Object + を + Verb', pair: '散歩をします / 掃除をします / 洗濯をします vs. テレビを見ます / 小説を読みます', detail: 'Activity nouns like 勉強・宿題・掃除・洗濯・昼寝・散歩 pair with をします (or します directly without を).' },
+      '11-1': { badge: 'Polite vs. Plain i-Adjective', pair: '暖かいです（敬体・丁寧） vs. 暖かい（簡体・辞書形）', detail: 'Drop です to get the plain/dictionary form of any i-adjective; never add だ after an i-adjective (*暖かいだ is ungrammatical).' },
+      '11-2': { badge: 'Same Meaning (Standard vs. Formal Negative)', pair: '甘くないです vs. 甘くありません（意味は同じ）', detail: 'Both mean "is not sweet." 〜くないです is standard modern polite speech; 〜くありません is slightly more formal. Irregular いい becomes よくないです / よくありません.' },
+      '11-3': { badge: 'Past i-Adjective Rule (Never でした)', pair: '暖かかったです（正しい） vs. ×暖かいでした（誤り）', detail: 'i-Adjectives conjugate their own ending to 〜かったです for past tense; never attach でした after an i-adjective.' },
+      '11-4': { badge: 'Same Meaning (Standard vs. Formal Past Negative)', pair: '暖かくなかったです vs. 暖かくありませんでした（意味は同じ）', detail: 'Both mean "was not warm." Drop です (暖かくなかった) for the plain past negative form.' },
+      '11-5': { badge: 'Zero だ Before でしょう', pair: '多分寒いでしょう（い形容詞） ／ 多分先生でしょう（名詞・な形容詞：×だ不要）', detail: 'Attach でしょう directly after plain i-adjectives or bare noun/na-adjective stems—never insert だ or です before でしょう.' },
+      '11-6': { badge: 'Adjective Modifying Noun vs. Modifying Verb', pair: '早い時間（い＋名詞） vs. 早く起きます（く＋動詞）', detail: 'Keep 〜い before a noun, and change 〜い to 〜く when modifying a verb as an adverb (早く起きます, 遅く帰ります).' },
+      '11-7': { badge: 'Scope Marker では + Superlative 一番', pair: '［範囲］では［項目］が一番［形容詞］です', detail: 'Use では after the comparison group (日本では, 夏の果物では) and 一番 before the adjective.' },
+      '11-8': { badge: 'Clause Contrast Conjunction でも', pair: 'キャンパスは広いです。でも、学生寮は古いです。', detail: 'でも starts a new sentence to contrast a positive feature with a negative one.' },
+      '11-9': { badge: 'Weather Temperature vs. Touch/Drink Temperature', pair: '暑い（あつい＝気候）↔ 寒い（さむい） vs. 熱い（あつい＝触覚・飲み物）↔ 冷たい（つめたい）', detail: 'Although 暑い and 熱い share the reading あつい, their antonyms differ: use 寒い for weather/air and 冷たい for cold drinks or objects.' },
+      '12-1': { badge: 'Polite vs. Plain na-Adjective', pair: '静かです（敬体） vs. 静かだ（簡体） ／ 辞書見出し：静か（な）', detail: 'Unlike i-adjectives, na-adjectives take だ in plain affirmative predicates and です in polite predicates.' },
+      '12-2': { badge: 'na-Adjectives Ending in -i Trap', pair: '有名ではありません / きれいではありません vs. ×有名くないです / ×きれいくないです', detail: 'Even though 有名 (ゆうめい) and きれい end in -i in pronunciation, both are na-adjectives and conjugate like nouns (ではありません / でした).' },
+      '12-3': { badge: 'na-Adjective Noun Modifier vs. Exception 同じ', pair: '静かな町 / 有名な店（〜な＋名詞） vs. 同じクラス / 同じ年（×同じな不要）', detail: 'Standard na-adjectives require な before a noun, whereas 同じ attaches directly without な.' },
+      '12-4': { badge: 'Noun Modifier な vs. Verb Modifier に', pair: 'にぎやかな町（な＋名詞） vs. にぎやかになりました（に＋動詞）', detail: 'Use 〜な before a noun, and 〜に before a verb such as なります ("become") or 話します ("speak").' },
+      '12-5': { badge: 'Single-Sentence Contrast が vs. New-Sentence しかし', pair: '［文1］が、［文2］（一文内） vs. ［文1］。しかし、［文2］（二文間）', detail: 'Particle が joins two contrasting clauses within one sentence, while conjunction しかし starts a new sentence.' },
+      '12-6': { badge: 'Polite Invitation 〜ませんか', pair: '一緒に行きませんか（勧誘＝Won’t you go?） vs. 一緒に行きますか（単純質問）', detail: 'Negative question 〜ませんか invites the listener politely without putting pressure on them to accept.' },
+      '12-7': { badge: 'Administrative Suffixes of Japan’s 47 Prefectures', pair: '東京都（1都）・北海道（1道）・大阪府・京都府（2府）・43県', detail: 'Only Tokyo uses 都 (と), only Hokkaido uses 道 (どう), only Osaka and Kyoto use 府 (ふ), and all other 43 prefectures use 県 (けん).' },
+      '12-8': { badge: 'Change of State: na-Adj に vs. i-Adj く', pair: 'にぎやかになりました（な形容詞＋に） vs. 多くなりました（い形容詞語幹＋く）', detail: 'Before なります ("become"), na-adjectives and nouns take に, while i-adjectives change final い to く.' }
+    };
+
+    function getNoteClarification(note) {
+      if (!note) return null;
+      return NOTE_CLARIFICATIONS[note.id] || null;
     }
 
     function openChapterDialogue(secKey) {
@@ -11052,13 +11184,8 @@
     function normalizeSearchText(str) {
       if (!str) return '';
       // Convert any Katakana to Hiragana first
-      let s = str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
-      // Append romanized version if string contains Hiragana so romaji queries match Japanese kana directly
-      let romFromKana = '';
-      if (/[\u3041-\u3096]/.test(s)) {
-        romFromKana = ' ' + kanaToRomaji(s);
-      }
-      const combined = (s + romFromKana)
+      const s = str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+      return s
         .toLowerCase()
         .replace(/[\s\u3000。、．，！？!?,.'"`（）()・〜~「」：\-]/g, '')
         .replace(/ō/g, 'ou')
@@ -11080,7 +11207,6 @@
         .replace(/chi/g, 'ti')
         .replace(/fu/g, 'hu')
         .replace(/oo/g, 'ou');
-      return combined;
     }
 
     function textToSearchableRomaji(jpStr) {
@@ -11120,6 +11246,7 @@
         const cleanJp = (c.jp || '').replace(/（.*?）/g, '').trim();
         seenWords.add(cleanJp);
         const romaji = formatStandardRomaji(c.romaji || kanaToRomaji(c.kana || cleanJp));
+        const kanaRomaji = kanaToRomaji(c.kana || cleanJp);
         const exRomaji = textToSearchableRomaji(c.exJp || '');
         globalSearchIndex.push({
           type: 'WORDS',
@@ -11136,7 +11263,7 @@
           actionLabel: 'Card →',
           actionType: 'CARD',
           actionPayload: c.id,
-          haystack: normalizeSearchText([c.jp, c.kana, c.romaji, romaji, c.en, c.zh, c.mnemonic, c.exJp, exRomaji].join(' '))
+          haystack: normalizeSearchText([c.jp, c.kana, c.romaji, romaji, kanaRomaji, c.en, c.zh, c.mnemonic, c.exJp, exRomaji].join(' '))
         });
       });
 
@@ -11147,6 +11274,7 @@
         seenWords.add(cleanJp);
         const kana = info.kana || cleanJp;
         const romaji = formatStandardRomaji(kanaToRomaji(kana));
+        const kanaRomaji = kanaToRomaji(kana);
         globalSearchIndex.push({
           type: 'WORDS',
           lesson: info.lesson || '1',
@@ -11162,7 +11290,7 @@
           actionLabel: 'Notes →',
           actionType: 'SECTION_NOTES',
           actionPayload: info.lesson || '1',
-          haystack: normalizeSearchText([cleanJp, kana, romaji, info.en, info.zh, info.mnemonic].join(' '))
+          haystack: normalizeSearchText([cleanJp, kana, romaji, kanaRomaji, info.en, info.zh, info.mnemonic].join(' '))
         });
       });
 
@@ -11195,6 +11323,7 @@
         (dlgs || []).forEach(dlg => {
           (dlg.lines || []).forEach(ln => {
             const romaji = formatStandardRomaji(kanaToRomaji(ln.kana || ln.jp));
+            const kanaRomaji = kanaToRomaji(ln.kana || ln.jp);
             const fallbackRomaji = textToSearchableRomaji(ln.jp);
             globalSearchIndex.push({
               type: 'DIALOGUES',
@@ -11211,7 +11340,7 @@
               actionLabel: 'Dialogue →',
               actionType: 'SECTION_DIALOGUE',
               actionPayload: secKey,
-              haystack: normalizeSearchText([ln.sp, ln.jp, ln.kana, romaji, fallbackRomaji, ln.en, ln.zh, dlg.title].join(' '))
+              haystack: normalizeSearchText([ln.sp, ln.jp, ln.kana, romaji, kanaRomaji, fallbackRomaji, ln.en, ln.zh, dlg.title].join(' '))
             });
           });
         });
@@ -11223,6 +11352,7 @@
         (sets || []).forEach(set => {
           (set.items || []).forEach(([jp, rd]) => {
             const romaji = formatStandardRomaji(kanaToRomaji(rd));
+            const kanaRomaji = kanaToRomaji(rd);
             globalSearchIndex.push({
               type: 'COUNTERS',
               lesson: lessonNum,
@@ -11238,7 +11368,7 @@
               actionLabel: 'Counters →',
               actionType: 'COUNTERS',
               actionPayload: 'matrix',
-              haystack: normalizeSearchText([jp, rd, romaji, set.title, set.q].join(' '))
+              haystack: normalizeSearchText([jp, rd, romaji, kanaRomaji, set.title, set.q].join(' '))
             });
           });
         });
@@ -11246,6 +11376,7 @@
 
       L8_31_DAYS.forEach(([day, rd]) => {
         const romaji = formatStandardRomaji(kanaToRomaji(rd));
+        const kanaRomaji = kanaToRomaji(rd);
         globalSearchIndex.push({
           type: 'COUNTERS',
           lesson: '8',
@@ -11261,7 +11392,7 @@
           actionLabel: 'Counters →',
           actionType: 'COUNTERS',
           actionPayload: 'matrix',
-          haystack: normalizeSearchText([day, rd, romaji, 'calendar date'].join(' '))
+          haystack: normalizeSearchText([day, rd, romaji, kanaRomaji, 'calendar date'].join(' '))
         });
       });
     }
