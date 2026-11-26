@@ -219,6 +219,7 @@
     #cloze-feedback:not(.hidden),
     #pattern-feedback:not(.hidden),
     #trans-feedback:not(.hidden),
+    #qa-feedback:not(.hidden),
     #kanji-trap-feedback:not(.hidden),
     #lookalike-feedback:not(.hidden),
     #counter-drill-feedback:not(.hidden),
@@ -265,6 +266,7 @@
       background-color: #334155 !important;
     }
     html.dark .hover\:bg-slate-50:hover,
+    html.dark .hover\:bg-slate-50\/70:hover,
     html.dark .hover\:bg-slate-100:hover,
     html.dark .hover\:bg-slate-200:hover {
       background-color: #334155 !important;
@@ -379,7 +381,8 @@
     html.dark .text-amber-950 {
       color: #FCD34D !important;
     }
-    html.dark .bg-emerald-50 {
+    html.dark .bg-emerald-50,
+    html.dark .bg-emerald-50\/70 {
       background-color: rgba(16, 185, 129, 0.16) !important;
     }
     html.dark .bg-emerald-100 {
@@ -679,6 +682,9 @@
         <button type="button" data-section="COUNTERS" class="curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 border border-emerald-200/80 text-emerald-900 hover:bg-emerald-100">
           助数詞
         </button>
+        <button type="button" data-section="CATEGORIES" class="curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-50 border border-purple-200/80 text-purple-900 hover:bg-purple-100">
+          語彙分類
+        </button>
       </div>
 
     </div>
@@ -718,6 +724,10 @@
         <button type="button" onclick="setLessonSubMode('translate')" id="pill-lesson-translate" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5">
           <span>✍️ Translate</span>
           <span id="badge-translate-count" class="px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold">0</span>
+        </button>
+        <button type="button" onclick="setLessonSubMode('qa')" id="pill-lesson-qa" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5">
+          <span>🗣️ Q &amp; A</span>
+          <span id="badge-qa-count" class="px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold">0</span>
         </button>
         <button type="button" onclick="setLessonSubMode('deck')" id="pill-lesson-deck" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5">
           <span>📋 Words</span>
@@ -844,6 +854,9 @@
                   </p>
                   <div id="card-kanji-trap-box" class="hidden text-xs text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2">
                     <span class="font-bold">⚠️ Kanji:</span> <span id="card-kanji-trap-text"></span>
+                  </div>
+                  <div id="card-confusable-box" class="hidden text-xs text-rose-800 bg-rose-50/90 border border-rose-200/80 rounded-xl px-3 py-2">
+                    <span class="font-bold">⚡ Compare:</span> <span id="card-confusable-text"></span>
                   </div>
                   <div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-between gap-2">
                     <div>
@@ -1104,6 +1117,108 @@
           <p id="trans-fb-exp" class="text-xs text-slate-700 leading-relaxed"></p>
           <button type="button" onclick="nextTranslateItem()" class="w-full py-2.5 rounded-xl bg-[#4F46E5] hover:bg-indigo-700 text-white text-xs font-bold transition">
             Next Sentence →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3D: JAPANESE Q & A PRACTICE (質疑応答) ==================== -->
+    <section id="view-qa" class="hidden space-y-4">
+      <div class="max-w-xl mx-auto bg-white rounded-3xl border border-[#E2E8F0] shadow-xs p-6 sm:p-8 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span id="qa-tag" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-[#4F46E5] text-xs font-bold">第1課 • Q &amp; A</span>
+            <span id="qa-type-badge" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-extrabold">🎯 Auto-Check</span>
+            <span id="qa-gp" class="text-xs font-semibold text-slate-500 truncate">Grammar Point</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-bold">
+            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800">🔥 <span id="qa-streak">0</span></span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700"><span id="qa-score">0/0</span></span>
+          </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#4F46E5]">Question (質問)</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" id="qa-trans-btn" onclick="toggleQaTranslation()" class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 text-[11px] font-bold text-slate-600 hover:text-[#4F46E5] transition">
+                🌐 EN/ZH
+              </button>
+              <button type="button" id="qa-hint-btn" onclick="toggleQaHint()" class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 text-[11px] font-bold text-slate-600 hover:text-[#4F46E5] transition">
+                💡 Pattern Hint
+              </button>
+              <button type="button" onclick="speakQaQuestion()" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] text-[11px] font-bold transition" title="Listen to question">
+                🔊
+              </button>
+            </div>
+          </div>
+
+          <p id="qa-question-jp" class="font-jp text-lg sm:text-xl font-extrabold text-slate-900 leading-loose"></p>
+          <p id="qa-cue-box" class="text-xs font-bold text-indigo-700 bg-indigo-50/70 border border-indigo-200/80 rounded-xl px-3 py-2"></p>
+
+          <div id="qa-trans-box" class="hidden pt-1.5 border-t border-slate-200/80 space-y-0.5">
+            <p id="qa-q-en" class="text-xs font-semibold text-slate-700"></p>
+            <p id="qa-q-zh" class="text-[11px] text-slate-500"></p>
+          </div>
+          <p id="qa-hint-box" class="hidden pt-1.5 border-t border-slate-200/80 text-xs font-jp font-semibold text-indigo-600"></p>
+        </div>
+
+        <!-- Answer Form -->
+        <form id="qa-form" onsubmit="event.preventDefault(); submitQaAnswer();" class="space-y-2.5">
+          <textarea id="qa-input" rows="2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); submitQaAnswer();}" placeholder="Answer in Japanese (Kanji, Hiragana, or Romaji)..." class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-[#4F46E5] focus:outline-none font-jp text-base font-bold text-slate-900 bg-slate-50 focus:bg-white transition resize-none"></textarea>
+          <div class="flex gap-2">
+            <button type="submit" id="qa-submit-btn" class="flex-1 py-3 rounded-2xl bg-[#4F46E5] hover:bg-indigo-700 text-white text-xs font-extrabold transition">
+              Check Answer ↵
+            </button>
+            <button type="button" id="qa-reveal-btn" onclick="revealQaAnswer()" class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+              Reveal Suggested
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 text-center">Type your reply in Japanese (漢字 / かな) or Romaji • Press Enter to submit</p>
+        </form>
+
+        <!-- Feedback, Suggested Answer & Self-Check Remarks -->
+        <div id="qa-feedback" class="hidden rounded-2xl p-4 bg-slate-50 border border-slate-200 space-y-3">
+          <div class="space-y-1">
+            <p id="qa-fb-status" class="text-xs font-extrabold"></p>
+            <p id="qa-fb-user-echo" class="hidden text-xs font-jp font-semibold text-slate-600 bg-white border border-slate-200/80 rounded-xl px-3 py-2"></p>
+          </div>
+
+          <!-- Automated Structure Check Badges (for Open Questions) -->
+          <div id="qa-structure-checks" class="hidden flex flex-wrap gap-1.5"></div>
+
+          <!-- Suggested Model Answer -->
+          <div class="p-3 rounded-xl bg-white border border-indigo-200/80 space-y-1">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#4F46E5]">Suggested Answer (模範解答)</span>
+                <p id="qa-fb-suggested" class="font-jp text-base sm:text-lg font-extrabold text-slate-900 leading-loose mt-0.5"></p>
+                <p id="qa-fb-romaji" class="text-xs font-mono font-semibold text-indigo-600"></p>
+              </div>
+              <button type="button" onclick="speakQaSuggested()" class="shrink-0 p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] text-xs" title="Listen to suggested answer">🔊</button>
+            </div>
+            <div id="qa-alt-samples" class="hidden pt-1.5 border-t border-slate-100 space-y-1"></div>
+          </div>
+
+          <!-- Self-Check Remarks -->
+          <div id="qa-remarks-box" class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80 space-y-1">
+            <p class="text-[11px] font-extrabold text-emerald-900">📋 Self-Check Remarks (チェックポイント)</p>
+            <ul id="qa-remarks-list" class="list-disc pl-4 space-y-1 text-xs text-slate-700 leading-relaxed"></ul>
+          </div>
+
+          <!-- Self-Grade Bar (shown for Open Questions after submitting) -->
+          <div id="qa-self-grade-bar" class="hidden grid grid-cols-2 gap-2">
+            <button type="button" onclick="recordQaSelfGrade(true)" class="py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-extrabold transition">
+              ✅ Matches Remarks
+            </button>
+            <button type="button" onclick="recordQaSelfGrade(false)" class="py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-extrabold transition">
+              🔄 Needs Practice
+            </button>
+          </div>
+
+          <button type="button" onclick="nextQaItem()" class="w-full py-2.5 rounded-xl bg-[#4F46E5] hover:bg-indigo-700 text-white text-xs font-bold transition">
+            Next Question →
           </button>
         </div>
       </div>
@@ -1585,6 +1700,36 @@
 
     </section>
 
+    <!-- ==================== VIEW 6: 語彙分類 (CATEGORIZED VOCABULARY ACROSS CH 1–12) ==================== -->
+    <section id="view-categories" class="hidden max-w-5xl mx-auto space-y-4">
+      <div class="bg-white rounded-3xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-lg bg-purple-50 text-purple-800 text-xs font-extrabold">テーマ別・品詞別 語彙分類</span>
+              <span id="cat-vocab-count-badge" class="text-xs font-bold text-slate-400">0 words</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">Categorized Vocabulary Across All Chapters (挨拶 + 第1課–第12課)</h3>
+            <p class="text-xs text-slate-500">Browse words grouped by semantic &amp; grammatical category • Click any word to listen 🔊 or hover for full glosses</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="studyActiveVocabCategory('srs')" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] text-xs font-extrabold transition">
+              🗂️ Study Category Cards
+            </button>
+            <button type="button" onclick="studyActiveVocabCategory('recall')" class="px-3 py-2 rounded-xl bg-[#4F46E5] hover:bg-indigo-700 text-white text-xs font-extrabold transition">
+              ⚡ Quiz Category
+            </button>
+          </div>
+        </div>
+
+        <input id="cat-vocab-search" oninput="renderCategorizedVocabView()" type="text" placeholder="Filter words in this category (Kanji, Hiragana, Romaji, English, or Chinese)..." class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#4F46E5]" />
+
+        <div id="cat-vocab-pills" class="flex flex-wrap items-center gap-1.5"></div>
+      </div>
+
+      <div id="cat-vocab-groups-container" class="space-y-4"></div>
+    </section>
+
   </main>
 
   <!-- Persistent DOM Audio Player for iOS/Safari & Chromium iframe compatibility -->
@@ -1614,6 +1759,10 @@
 
     <p id="pop-mnemonic" class="text-[11px] text-indigo-950 bg-indigo-50/70 border border-indigo-100 rounded-xl p-2 leading-relaxed">
       🧠 Memory hook
+    </p>
+
+    <p id="pop-confusable" class="hidden text-[11px] text-rose-950 bg-rose-50 border border-rose-200/80 rounded-xl p-2 leading-snug">
+      ⚡ Confusable contrast
     </p>
 
     <div id="pop-example-box" class="hidden text-[11px] bg-slate-50 border border-slate-200/80 rounded-xl p-2 space-y-0.5">
@@ -2004,6 +2153,11 @@
         badge: '助数詞',
         title: 'Counters & Time Master Reference — Phonetic Shifts & Drills (L6, L8 & L9)',
         sub: 'Phonetic Shifts & Calendar'
+      },
+      CATEGORIES: {
+        badge: '語彙分類',
+        title: 'Categorized Vocabulary Across All Chapters (テーマ別・品詞別語彙一覧)',
+        sub: 'Thematic Word Bank'
       }
     };
 
@@ -3884,6 +4038,49 @@
           { jp: '昨日は休みでした。今日も休みです。あしたも休みでしょう。', en: 'Yesterday was a holiday. Today is also a holiday. Tomorrow will probably be a holiday too.' }
         ]
       },
+      {
+        id: '8-11',
+        lesson: '8',
+        category: '語彙整理・比較',
+        title: '8-11 Category & Comparison: Conjunctions, Connectors & Sentence Adverbs (接続詞・つなぎ言葉・副詞)',
+        takeaway: 'Screen all sentence connectors and discourse adverbs across Chapters 1–12 together (そして・ところで・ですから・しかし・それでは・でも・例えば・大体・もちろん).',
+        formula: 'そして（並列・順接） ／ ところで（話題転換） ／ ですから（理由・結果） ／ しかし・でも（逆接） ／ それでは（決定）',
+        points: [
+          'Additive / Sequential: そして ("and / moreover / then" — e.g., 9月から12月は第1学期です。そして、5月から8月は夏休みです。).',
+          'Topic Shift: ところで ("by the way" — e.g., ところで、張さんの誕生日はいつですか。).',
+          'Cause & Result: ですから ("therefore / so" — e.g., 香港でも2月が一番寒いです。ですから、旧暦のお正月は毎年寒いです。).',
+          'Contrast: しかし ("however" — formal/written) vs. でも ("but / however" — conversational).',
+          'Decision / Transition: それでは / では / じゃ ("well then / in that case" — e.g., それでは、大きいのを10下さい。).'
+        ],
+        counterChips: [
+          {
+            label: 'Conjunctions & Discourse Connectors (接続詞・つなぎ言葉)',
+            q: 'つなぎことば',
+            items: [
+              { jp: 'そして', rd: 'そして' },
+              { jp: 'ところで', rd: 'ところで' },
+              { jp: 'ですから', rd: 'ですから', shift: 'ren' },
+              { jp: 'しかし', rd: 'しかし', shift: 'irr' },
+              { jp: 'でも', rd: 'でも', shift: 'irr' },
+              { jp: 'それでは', rd: 'それでは' },
+              { jp: 'では', rd: 'では' },
+              { jp: 'じゃ', rd: 'じゃ' },
+              { jp: 'そういえば', rd: 'そういえば' },
+              { jp: '例えば', rd: 'たとえば' },
+              { jp: '大体', rd: 'だいたい' },
+              { jp: 'もちろん', rd: 'もちろん' },
+              { jp: '多分', rd: 'たぶん' },
+              { jp: 'ずいぶん', rd: 'ずいぶん' },
+              { jp: '大変', rd: 'たいへん' },
+              { jp: 'とても', rd: 'とても' }
+            ]
+          }
+        ],
+        examples: [
+          { jp: '香港でも2月が一番寒いです。ですから、旧暦のお正月は毎年寒いです。', en: 'In Hong Kong too, February is the coldest. Therefore, Lunar New Year is cold every year.' },
+          { jp: 'ところで、張さんの誕生日はいつですか。', en: 'By the way, when is Zhang’s birthday?' }
+        ]
+      },
 
       // ==================== 第9課 (LESSON 9 — FULL 解説 9-1 TO 9-10 + ROLEPLAY) ====================
       {
@@ -4105,6 +4302,8 @@
           {
             label: 'Core Verbs: Present vs. Past (動詞の現在形・過去形)',
             q: 'なにをしますか',
+            layout: 'pair-table',
+            headers: ['Present (〜ます)', 'Past (〜ました)'],
             items: [
               { jp: '行きます', rd: 'いきます' },
               { jp: '行きました', rd: 'いきました', shift: 'ren' },
@@ -4690,6 +4889,26 @@
               { jp: '話します', rd: 'はなします' },
               { jp: 'しかし', rd: 'しかし' },
               { jp: '〜が、〜', rd: 'が' }
+            ]
+          },
+          {
+            label: 'Family Members: Own Family (謙譲) vs. Polite / Other’s Family (丁寧)',
+            q: 'ごかぞくは',
+            layout: 'pair-table',
+            headers: ['Own Family (Speaking to Others)', 'Polite / Direct Address (〜さん)'],
+            items: [
+              { jp: '母', rd: 'はは' },
+              { jp: 'お母さん', rd: 'おかあさん', shift: 'ren' },
+              { jp: '父', rd: 'ちち' },
+              { jp: 'お父さん', rd: 'おとうさん', shift: 'ren' },
+              { jp: '兄', rd: 'あに' },
+              { jp: 'お兄さん', rd: 'おにいさん', shift: 'ren' },
+              { jp: '姉', rd: 'あね' },
+              { jp: 'お姉さん', rd: 'おねえさん', shift: 'ren' },
+              { jp: '弟', rd: 'おとうと' },
+              { jp: '弟さん', rd: 'おとうとさん', shift: 'ren' },
+              { jp: '妹', rd: 'いもうと' },
+              { jp: '妹さん', rd: 'いもうとさん', shift: 'ren' }
             ]
           }
         ],
@@ -5597,6 +5816,16 @@
         { lesson: '12', pos: 'な形容詞', jp: '不親切（な）', kana: 'ふしんせつ', romaji: 'fushinsetsu', en: 'Unkind / Unfriendly', zh: '不親切', mnemonic: 'Opposite of 親切 (しんせつ = kind). Listed in L12 新出単語 #24.', exJp: 'あの店員はあまり親切ではありません。', exEn: 'That clerk is not very kind.' },
         { lesson: '12', pos: '名詞', jp: 'お兄さん', kana: 'おにいさん', romaji: 'oniisan', en: 'Older brother (someone else’s / polite)', zh: '哥哥', mnemonic: 'From L12 grammar notes (12-6 p.237).', exJp: 'お兄さんは大変親切な人です。', exEn: 'Your older brother is a very kind person.' },
         { lesson: '12', pos: '名詞', jp: 'お姉さん', kana: 'おねえさん', romaji: 'oneesan', en: 'Older sister (someone else’s / polite)', zh: '姊姊', mnemonic: 'From L12 grammar notes (12-6 p.237).', exJp: 'お姉さんは英語が上手です。', exEn: 'Your older sister is good at English.' },
+        { lesson: '12', pos: '名詞', jp: 'お母さん', kana: 'おかあさん', romaji: 'okaasan', en: 'Mother / Mom (polite / direct address)', zh: '媽媽／母親（敬稱・稱呼）', mnemonic: 'Used when addressing your own mom or referring to someone else’s mother (humble own-family form: 母 はは).', exJp: 'お母さんはとても親切な人です。', exEn: 'Your mother is a very kind person.' },
+        { lesson: '12', pos: '名詞', jp: '母', kana: 'はは', romaji: 'haha', en: 'My mother (humble, speaking to outsiders)', zh: '家母／我媽媽（對外自稱）', mnemonic: 'Humble term for your own mother when speaking to people outside your family (polite/address: お母さん).', exJp: '母は料理が上手です。', exEn: 'My mother is good at cooking.' },
+        { lesson: '12', pos: '名詞', jp: 'お父さん', kana: 'おとうさん', romaji: 'otousan', en: 'Father / Dad (polite / direct address)', zh: '爸爸／父親（敬稱・稱呼）', mnemonic: 'Used when addressing your own dad or referring to someone else’s father (humble own-family form: 父 ちち).', exJp: 'お父さんは会社にいますか。', exEn: 'Is your father at the company?' },
+        { lesson: '12', pos: '名詞', jp: '父', kana: 'ちち', romaji: 'chichi', en: 'My father (humble, speaking to outsiders)', zh: '家父／我爸爸（對外自稱）', mnemonic: 'Humble term for your own father when speaking to outsiders (polite/address: お父さん).', exJp: '父は毎朝新聞を読みます。', exEn: 'My father reads the newspaper every morning.' },
+        { lesson: '12', pos: '名詞', jp: '兄', kana: 'あに', romaji: 'ani', en: 'My older brother (humble)', zh: '家兄／我哥哥（對外自稱）', mnemonic: 'Humble term for your own older brother (polite/address: お兄さん).', exJp: '兄は大学生です。', exEn: 'My older brother is a university student.' },
+        { lesson: '12', pos: '名詞', jp: '姉', kana: 'あね', romaji: 'ane', en: 'My older sister (humble)', zh: '家姊／我姊姊（對外自稱）', mnemonic: 'Humble term for your own older sister (polite/address: お姉さん).', exJp: '姉はフランス語を話します。', exEn: 'My older sister speaks French.' },
+        { lesson: '12', pos: '名詞', jp: '弟', kana: 'おとうと', romaji: 'otouto', en: 'Younger brother', zh: '弟弟', mnemonic: 'Someone else’s younger brother takes さん: 弟さん (おとうとさん).', exJp: '弟は今高校生です。', exEn: 'My younger brother is a high school student now.' },
+        { lesson: '12', pos: '名詞', jp: '弟さん', kana: 'おとうとさん', romaji: 'otoutosan', en: 'Younger brother (someone else’s)', zh: '令弟（對方的弟弟）', mnemonic: 'Polite form referring to someone else’s younger brother.', exJp: '弟さんは何年生ですか。', exEn: 'What year student is your younger brother?' },
+        { lesson: '12', pos: '名詞', jp: '妹', kana: 'いもうと', romaji: 'imouto', en: 'Younger sister', zh: '妹妹', mnemonic: 'Someone else’s younger sister takes さん: 妹さん (いもうとさん).', exJp: '妹は音楽をよく聞きます。', exEn: 'My younger sister often listens to music.' },
+        { lesson: '12', pos: '名詞', jp: '妹さん', kana: 'いもうとさん', romaji: 'imoutosan', en: 'Younger sister (someone else’s)', zh: '令妹（對方的妹妹）', mnemonic: 'Polite form referring to someone else’s younger sister.', exJp: '妹さんはお元気ですか。', exEn: 'Is your younger sister doing well?' },
         { lesson: '1', pos: '名詞', jp: '部長', kana: 'ぶちょう', romaji: 'buchou', en: 'Department head / Manager', zh: '部長', mnemonic: 'From L1 豆知識 (Titles p.42).', exJp: '田中部長は会社にいます。', exEn: 'Department Head Tanaka is at the company.' },
         { lesson: '1', pos: '名詞', jp: '課長', kana: 'かちょう', romaji: 'kachou', en: 'Section chief / Manager', zh: '課長', mnemonic: 'From L1 豆知識 (Titles p.42).', exJp: '佐藤課長は日本人です。', exEn: 'Section Chief Sato is Japanese.' },
         { lesson: '1', pos: '名詞', jp: '会釈', kana: 'えしゃく', romaji: 'eshaku', en: 'Light bow (15° casual greeting)', zh: '會釋（15度輕鞠躬）', mnemonic: 'From L1 豆知識 (Bowing p.42): 15-degree casual bow.', exJp: '廊下で会釈をします。', exEn: 'Give a light 15-degree bow in the hallway.' },
@@ -5760,7 +5989,14 @@
         '忙しい': { en: 'Busy', zh: '忙碌', pos: 'い形容詞', note: 'とても忙しい1日でした = It was a very busy day.', exJp: '昨日はとても忙しい1日でした。', exEn: 'Yesterday was a very busy day.' },
         '高い': { en: 'High / Tall / Expensive', zh: '高／貴', pos: 'い形容詞', note: 'Opposite of 低い (low) or 安い (cheap).', exJp: 'あそこの高い建物は全部団地ですか。', exEn: 'Are those tall buildings over there all housing estates?' },
         '多い': { en: 'Many / Numerous / Abundant', zh: '多', pos: 'い形容詞', note: 'Adverbial form: 多くなります (become numerous).', exJp: '沙田の人口もずいぶん多くなりました。', exEn: 'Sha Tin’s population has also become much larger.' },
-        'いい': { en: 'Good / Nice / Fine', zh: '好的', pos: 'い形容詞', note: 'Modifies nouns as いい; conjugates from よい (よかった, よくない).', exJp: 'それはいいですね。', exEn: 'That’s really nice!' }
+        'いい': { en: 'Good / Nice / Fine', zh: '好的', pos: 'い形容詞', note: 'Modifies nouns as いい; conjugates from よい (よかった, よくない).', exJp: 'それはいいですね。', exEn: 'That’s really nice!' },
+        '帰ります': { en: 'To return home / go back', zh: '回家／回去', pos: '動詞', note: 'Godan verb (despite ending in -iru): 帰ります / 帰りません / 帰りました / 帰りませんでした. Destination takes へ.', exJp: '夕方6時半ごろうちへ帰ります。', exEn: 'I return home around 6:30 in the evening.' },
+        '行きます': { en: 'To go', zh: '去', pos: '動詞', note: 'Godan movement verb: 行きます / 行きません / 行きました / 行きませんでした. Destination takes へ (or に).', exJp: '李さんは来年日本へ行きます。', exEn: 'Li will go to Japan next year.' },
+        '来ます': { en: 'To come', zh: '來', pos: '動詞', note: 'Irregular verb 来る: 来ます / 来ません / 来ました / 来ませんでした. Used for movement toward the speaker.', exJp: '山田さんは週に4回ぐらい来ます。', exEn: 'Mr. Yamada comes about 4 times a week.' },
+        '起きます': { en: 'To wake up / get up', zh: '起床', pos: '動詞', note: 'Ichidan verb: 起きます / 起きません / 起きました / 起きませんでした. Specific clock time takes に.', exJp: '毎朝7時に起きます。', exEn: 'I wake up at 7:00 every morning.' },
+        '出掛けます': { en: 'To go out / leave home', zh: '出門／外出', pos: '動詞', note: 'Ichidan verb: 出掛けます / 出掛けません / 出掛けました / 出掛けませんでした.', exJp: '朝7時45分に出掛けます。', exEn: 'I leave home at 7:45 in the morning.' },
+        '増えます': { en: 'To increase / grow in number', zh: '增加', pos: '動詞', note: 'Intransitive Ichidan verb (subject takes が). Opposite: 減ります (へります = decrease).', exJp: '最近立派な住宅団地が増えました。', exEn: 'Recently splendid residential housing estates have increased.' },
+        'なります': { en: 'To become', zh: '變成', pos: '動詞', note: 'Godan verb: na-Adj/Noun + に なります; i-Adj stem + く なります.', exJp: '沙田は最近にぎやかになりました。', exEn: 'Sha Tin has recently become lively.' }
       };
 
       function resolveOralTranslation(jp, kana) {
@@ -6100,6 +6336,431 @@
       { lesson: '12', gp: 'Mixed Noun Modifier Types (〜+名詞, 口頭練習 8)', instruction: 'Modify "Sunday" with i-adjective "fun":', cue: '昨日は日曜日でした。（楽しい）', answer: '昨日は楽しい日曜日でした。', kana: 'きのうはたのしいにちようびでした。', en: '"Yesterday was a fun Sunday."', options: ['昨日は楽しい日曜日でした。', '昨日は楽しいな日曜日でした。', '昨日は楽しく日曜日でした。', '昨日は楽しいの日曜日でした。'], exp: 'i-Adjectives (楽しい) modify nouns directly without な or の.' }
     ];
 
+    // =========================================================================
+    // 4B. JAPANESE Q & A PRACTICE BANK (AUTO-CHECK & OPEN SELF-CHECK)
+    // =========================================================================
+    const QA_ITEMS = [
+      // ESS: Greetings & Classroom
+      {
+        lesson: 'ESS', mode: 'auto', gp: 'Morning Greeting',
+        qJp: 'おはようございます。', qKana: 'おはようございます。',
+        qEn: 'Good morning.', qZh: '早上好。',
+        cue: 'Respond politely with the matching morning greeting.',
+        hint: 'おはようございます。',
+        suggested: 'おはようございます。', suggestedKana: 'おはようございます。',
+        accepted: ['おはようございます', 'おはよう'],
+        remarks: ['Mirror おはようございます politely to teachers and classmates in the morning.']
+      },
+      {
+        lesson: 'ESS', mode: 'open', gp: 'Self-Introduction (自己紹介)',
+        qJp: 'はじめまして。田中です。どうぞよろしくお願いします。', qKana: 'はじめまして。たなかです。どうぞよろしくおねがいします。',
+        qEn: 'How do you do. I am Tanaka. Pleased to meet you.', qZh: '初次見面。我是田中。請多多關照。',
+        cue: 'Open question — introduce yourself with your own name!',
+        hint: 'はじめまして。わたしは［Name］です。どうぞよろしくお願いします。',
+        suggested: 'はじめまして。わたしは陳です。どうぞよろしくお願いします。',
+        suggestedKana: 'はじめまして。わたしはチンです。どうぞよろしくおねがいします。',
+        altSamples: ['はじめまして。李です。どうぞよろしくお願いします。'],
+        checkTokens: [
+          { re: /(はじめまして|hajimemashite)/i, label: 'Opening はじめまして' },
+          { re: /(です|desu)/i, label: 'Polite です after your name' },
+          { re: /(よろしく|yoroshiku)/i, label: 'Closing よろしく' }
+        ],
+        remarks: [
+          'Never attach 〜さん to your own name (say ［Name］です, not *［Name］さんです).',
+          'Close with どうぞよろしくお願いします (or shorter どうぞよろしく).'
+        ]
+      },
+      // Lesson 1
+      {
+        lesson: '1', mode: 'open', gp: 'Asking Major (専攻は何ですか)',
+        qJp: 'あなたの専攻は何ですか。', qKana: 'あなたのせんこうはなんですか。',
+        qEn: 'What is your major?', qZh: '你的主修是甚麼？',
+        cue: 'Open question — answer with your actual or chosen major.',
+        hint: '（わたしの専攻は）［専攻名］です。',
+        suggested: 'わたしの専攻は地理です。', suggestedKana: 'わたしのせんこうはちりです。',
+        altSamples: ['わたしの専攻は日本研究です。', '歴史です。'],
+        checkTokens: [
+          { re: /(です|desu)/i, label: 'Polite ending です' }
+        ],
+        remarks: [
+          'Content questions (何ですか) never begin with はい or いいえ.',
+          'Both full form (わたしの専攻は［Major］です) and concise form (［Major］です) are natural.'
+        ]
+      },
+      {
+        lesson: '1', mode: 'open', gp: 'Asking Year Level (何年生ですか)',
+        qJp: '今何年生ですか。', qKana: 'いまなんねんせいですか。',
+        qEn: 'What year student are you now?', qZh: '現在是幾年級學生？',
+        cue: 'Open question — reply with your year level (1年生〜4年生).',
+        hint: '今［1・2・3・4］年生です。',
+        suggested: '今2年生です。', suggestedKana: 'いまにねんせいです。',
+        altSamples: ['1年生です。', '今3年生です。'],
+        checkTokens: [
+          { re: /(年生|ねんせい|nensei)/i, label: 'Year suffix 〜年生' },
+          { re: /(です|desu)/i, label: 'Polite ending です' }
+        ],
+        remarks: [
+          'Check readings: 1年生 (いちねんせい), 2年生 (にねんせい), 3年生 (さんねんせい), 4年生 (よねんせい).',
+          'Do not put particle に after 今.'
+        ]
+      },
+      {
+        lesson: '1', mode: 'auto', gp: 'Negative Copula & Correction',
+        qJp: '王さんの専攻は地理ですか。', qKana: 'オーさんのせんこうはちりですか。',
+        qEn: 'Is Wang’s major Geography?', qZh: '王同學的主修是地理嗎？',
+        cue: 'Cue: Deny it and state that it is History (歴史).',
+        hint: 'いいえ、地理ではありません。歴史です。',
+        suggested: 'いいえ、地理ではありません。歴史です。',
+        suggestedKana: 'いいえ、ちりではありません。れきしです。',
+        accepted: [
+          'いいえ、地理ではありません。歴史です。',
+          'いいえ、ちりではありません。れきしです。',
+          'いいえ、王さんの専攻は地理ではありません。歴史です。',
+          'いいえ、地理じゃありません。歴史です。'
+        ],
+        remarks: ['Negate with ではありません (or spoken じゃありません), then give the correct noun + です.']
+      },
+      // Lesson 2
+      {
+        lesson: '2', mode: 'auto', gp: 'これ → それ Perspective Shift',
+        qJp: 'これはあなたの本ですか。', qKana: 'これはあなたのほんですか。',
+        qEn: 'Is this your book?', qZh: '這是你的書嗎？',
+        cue: 'Cue: Answer affirmatively ("Yes, that is my book.").',
+        hint: 'はい、それはわたしの本です。',
+        suggested: 'はい、それはわたしの本です。', suggestedKana: 'はい、それはわたしのほんです。',
+        accepted: [
+          'はい、それはわたしの本です。',
+          'はい、それはわたしのです。',
+          'はい、わたしの本です。',
+          'はい、そうです。',
+          'ええ、そうです。'
+        ],
+        remarks: ['When the speaker holds これ, the listener replies using それ (or short はい、そうです).']
+      },
+      {
+        lesson: '2', mode: 'auto', gp: 'Ownership & Substantive 〜の',
+        qJp: 'これはだれの本ですか。', qKana: 'これはだれのほんですか。',
+        qEn: 'Whose book is this?', qZh: '這是誰的書？',
+        cue: 'Cue: Say it is Li’s (李さん).',
+        hint: 'それは李さんの本です ／ 李さんのです。',
+        suggested: 'それは李さんの本です。', suggestedKana: 'それはリさんのほんです。',
+        accepted: [
+          'それは李さんの本です。',
+          'それは李さんのです。',
+          '李さんの本です。',
+          '李さんのです。'
+        ],
+        remarks: ['You may omit the repeated noun 本 after の → 李さんのです.']
+      },
+      // Lesson 3
+      {
+        lesson: '3', mode: 'auto', gp: 'Place Demonstrative どこ',
+        qJp: '周先生の研究室はどこですか。', qKana: 'シューせんせいのけんきゅうしつはどこですか。',
+        qEn: 'Where is Prof. Zhou’s office?', qZh: '周老師的研究室在哪裡？',
+        cue: 'Cue: Answer "It is over there (あそこ)."',
+        hint: '（周先生の研究室は）あそこです。',
+        suggested: 'あそこです。', suggestedKana: 'あそこです。',
+        accepted: ['あそこです', '周先生の研究室はあそこです', '研究室はあそこです'],
+        remarks: ['Use standalone place pronoun あそこ (never *あの or *あれ) for locations.']
+      },
+      {
+        lesson: '3', mode: 'auto', gp: 'Function Question 何ですか',
+        qJp: 'あの建物は何ですか。', qKana: 'あのたてものはなんですか。',
+        qEn: 'What is that building over there?', qZh: '那邊那座建築物是甚麼？',
+        cue: 'Cue: Answer "That over there is a student dormitory (学生寮)."',
+        hint: 'あれは学生寮です。',
+        suggested: 'あれは学生寮です。', suggestedKana: 'あれはがくせいりょうです。',
+        accepted: ['あれは学生寮です', 'あの建物は学生寮です', '学生寮です'],
+        remarks: ['Since both speakers are far from the building, keep あれ / あの建物 in the reply.']
+      },
+      // Lesson 4
+      {
+        lesson: '4', mode: 'open', gp: 'Neighborhood Shops (どんな店がありますか)',
+        qJp: 'あなたのうちの近くにどんな店がありますか。', qKana: 'あなたのうちのちかくにどんなみせがありますか。',
+        qEn: 'What kind of shops are near your house?', qZh: '你家附近有甚麼樣的商店？',
+        cue: 'Open question — list 2+ shops near your home using や or と.',
+        hint: '［店1］や［店2］があります。（例：レストランやスーパーがあります。）',
+        suggested: 'レストランやスーパーがあります。', suggestedKana: 'レストランやスーパーがあります。',
+        altSamples: ['スーパーや本屋やパン屋などがあります。', '銀行と郵便局があります。'],
+        checkTokens: [
+          { re: /(あります|arimasu)/i, label: 'Inanimate existence あります' },
+          { re: /(が|も|ga|mo)/i, label: 'Subject/inclusive particle が or も' }
+        ],
+        remarks: [
+          'Use あります (not います) for buildings and shops.',
+          'Use や（〜など） for partial examples, or と for an exhaustive list.'
+        ]
+      },
+      {
+        lesson: '4', mode: 'auto', gp: 'Contrastive Negation 〜にはありません',
+        qJp: 'すみません。郵便局はこの近くにありますか。', qKana: 'すみません。ゆうびんきょくはこのちかくにありますか。',
+        qEn: 'Excuse me. Is there a post office near here?', qZh: '唔該，郵局在這附近嗎？',
+        cue: 'Cue: Say "No, it is not near here. It is over that way (あちら)."',
+        hint: 'いいえ、この近くにはありません。あちらにありますよ。',
+        suggested: 'いいえ、この近くにはありません。あちらにあります。',
+        suggestedKana: 'いいえ、このちかくにはありません。あちらにあります。',
+        accepted: [
+          'いいえ、この近くにはありません。あちらにあります。',
+          'いいえ、この近くにはありません。あちらにありますよ。',
+          'いいえ、郵便局はこの近くにはありません。あちらにあります。',
+          'いいえ、郵便局はこの近くにはありません。あちらにありますよ。'
+        ],
+        remarks: ['Attach は after に (この近くにはありません) to highlight contrast.']
+      },
+      // Lesson 5
+      {
+        lesson: '5', mode: 'auto', gp: 'Animate Existence だれかいますか',
+        qJp: '図書室にだれかいますか。', qKana: 'としょしつにだれかいますか。',
+        qEn: 'Is anyone in the reading room?', qZh: '圖書室裡有人在嗎？',
+        cue: 'Cue: Answer negatively ("No, nobody is there.").',
+        hint: 'いいえ、だれもいません。',
+        suggested: 'いいえ、だれもいません。', suggestedKana: 'いいえ、だれもいません。',
+        accepted: ['いいえ、だれもいません', 'いいえ、図書室にはだれもいません', 'いいえ、いません'],
+        remarks: ['People take います / いません; "nobody" is だれもいません.']
+      },
+      {
+        lesson: '5', mode: 'open', gp: 'Animate Existence (だれがいますか)',
+        qJp: '今あなたの近くにだれがいますか。', qKana: 'いまあなたのちかくにだれがいますか。',
+        qEn: 'Who is near you right now?', qZh: '現在你附近有誰在？',
+        cue: 'Open question — name who is near you (or say nobody is there).',
+        hint: '［人］がいます。／ だれもいません。',
+        suggested: '友達がいます。', suggestedKana: 'ともだちがいます。',
+        altSamples: ['家族がいます。', 'いいえ、だれもいません。'],
+        checkTokens: [
+          { re: /(います|いません|imasu|imasen)/i, label: 'Animate verb います / いません' }
+        ],
+        remarks: [
+          'Always use います (affirmative) or いません (negative) for people and animals.',
+          'Mark the person with が (［人］がいます), or use だれもいません if alone.'
+        ]
+      },
+      // Lesson 6
+      {
+        lesson: '6', mode: 'auto', gp: 'Counters 〜本 (3本)',
+        qJp: '冷蔵庫の中にビールは何本ありますか。', qKana: 'れいぞうこのなかにビールはなんぼんありますか。',
+        qEn: 'How many bottles of beer are inside the refrigerator?', qZh: '冰箱裡有多少瓶啤酒？',
+        cue: 'Cue: Answer "There are 3 bottles."',
+        hint: '3本（さんぼん）あります。',
+        suggested: '3本あります。', suggestedKana: 'さんぼんあります。',
+        accepted: ['3本あります', 'さんぼんあります', 'ビールは3本あります', 'ビールが3本あります'],
+        remarks: ['Watch rendaku on 3本 → さんぼん, and place the counter directly before あります with no particle.']
+      },
+      {
+        lesson: '6', mode: 'open', gp: 'Counting Books 〜冊',
+        qJp: 'あなたのうちに日本語の本が何冊ぐらいありますか。', qKana: 'あなたのうちににほんごのほんがなんさつぐらいありますか。',
+        qEn: 'About how many Japanese books are in your home?', qZh: '你家裡大約有多少本日語書？',
+        cue: 'Open question — estimate using 〜冊ぐらいあります (or 〜冊しかありません).',
+        hint: '［数］冊ぐらいあります。／ 1冊しかありません。',
+        suggested: '5冊ぐらいあります。', suggestedKana: 'ごさつぐらいあります。',
+        altSamples: ['10冊ぐらいあります。', '1冊しかありません。'],
+        checkTokens: [
+          { re: /(冊|さつ|satsu)/i, label: 'Book counter 〜冊' },
+          { re: /(あります|ありません|arimasu|arimasen)/i, label: 'Existence verb あります / ありません' }
+        ],
+        remarks: [
+          'Watch sokuon shifts: 1冊 (いっさつ), 8冊 (はっさつ), 10冊 (じゅっさつ).',
+          'Use 〜ぐらい for "about/approximately", or 〜しかありません for "only".'
+        ]
+      },
+      // Lesson 7
+      {
+        lesson: '7', mode: 'auto', gp: 'Shopping Order (〜を［Count］下さい)',
+        qJp: 'いらっしゃいませ。大きいオレンジは1つ2ドルです。いくつ買いますか。', qKana: 'いらっしゃいませ。おおきいオレンジはひとつにドルです。いくつかいますか。',
+        qEn: 'Welcome! Big oranges are $2 each. How many will you buy?', qZh: '歡迎光臨！大橙一個2元，買幾個？',
+        cue: 'Cue: Politely ask for 10 of the big ones (大きいのを10下さい).',
+        hint: 'それでは、大きいのを10下さい。',
+        suggested: '大きいのを10下さい。', suggestedKana: 'おおきいのをとおください。',
+        accepted: [
+          '大きいのを10下さい',
+          '大きいのを10ください',
+          'それでは、大きいのを10下さい',
+          'それでは、大きいのを10ください',
+          '大きいオレンジを10下さい',
+          '大きいオレンジを10ください'
+        ],
+        remarks: ['Particle を goes right after the item (大きいのを), and the number goes right before 下さい.']
+      },
+      {
+        lesson: '7', mode: 'open', gp: 'Ordering at a Stationery Shop',
+        qJp: 'どんなボールペンを下さいか。（黒い・赤い・青い）', qKana: 'どんなボールペンをくださいか。',
+        qEn: 'What kind of ballpoint pen would you like?', qZh: '你想要甚麼樣的原子筆？',
+        cue: 'Open question — order any color & quantity using 〜本下さい.',
+        hint: '［色］ボールペンを［数］本下さい。',
+        suggested: '黒いボールペンを2本下さい。', suggestedKana: 'くろいボールペンをにほんください。',
+        altSamples: ['赤いボールペンを1本下さい。', '青いボールペンを3本下さい。'],
+        checkTokens: [
+          { re: /(を|o|wo)/i, label: 'Object particle を' },
+          { re: /(本|ほん|ぼん|ぽん|hon|bon|pon)/i, label: 'Long-object counter 〜本' },
+          { re: /(下さい|ください|kudasai)/i, label: 'Polite request 下さい' }
+        ],
+        remarks: [
+          'Color i-adjectives (黒い・赤い・青い・白い) modify nouns directly without の or な.',
+          'Check 〜本 shifts: 1本 いっぽん, 2本 にほん, 3本 さんぼん.'
+        ]
+      },
+      // Lesson 8
+      {
+        lesson: '8', mode: 'open', gp: 'Asking Birthday (誕生日はいつですか)',
+        qJp: 'あなたの誕生日はいつですか。', qKana: 'あなたのたんじょうびはいつですか。',
+        qEn: 'When is your birthday?', qZh: '你的生日是甚麼時候？',
+        cue: 'Open question — answer with your birth month and day!',
+        hint: 'わたしの誕生日は［月］月［日］日です。',
+        suggested: 'わたしの誕生日は10月20日です。', suggestedKana: 'わたしのたんじょうびはじゅうがつはつかです。',
+        altSamples: ['3月15日です。', 'わたしの誕生日は4月8日です。'],
+        checkTokens: [
+          { re: /(月|がつ|gatsu)/i, label: 'Month 〜月' },
+          { re: /(日|にち|か|ついたち|はつか|nichi|ka|tsuitachi|hatsuka)/i, label: 'Day 〜日' },
+          { re: /(です|desu)/i, label: 'Polite ending です' }
+        ],
+        remarks: [
+          'Check irregular months (4月 しがつ, 7月 しちがつ, 9月 くがつ) and special days (1–10日, 14日, 20日 はつか, 24日).',
+          'Do not put particle に before です (say 10月20日です, not *10月20日にです).'
+        ]
+      },
+      {
+        lesson: '8', mode: 'auto', gp: 'Time Span から〜まで',
+        qJp: '中文大学の授業はいつからいつまでですか。', qKana: 'ちゅうぶんだいがくのじゅぎょうはいつからいつまでですか。',
+        qEn: 'From when to when are classes at The Chinese University?', qZh: '中文大學的授課時間是從甚麼時候到甚麼時候？',
+        cue: 'Cue: Answer "From September to April."',
+        hint: '9月から4月までです。',
+        suggested: '9月から4月までです。', suggestedKana: 'くがつからしがつまでです。',
+        accepted: [
+          '9月から4月までです',
+          '中文大学の授業は9月から4月までです',
+          '授業は9月から4月までです'
+        ],
+        remarks: ['9月 is read くがつ and 4月 is read しがつ.']
+      },
+      // Lesson 9
+      {
+        lesson: '9', mode: 'open', gp: 'Wake-Up Time (何時に起きましたか)',
+        qJp: '今朝何時に起きましたか。', qKana: 'けさなんじにおきましたか。',
+        qEn: 'What time did you wake up this morning?', qZh: '你今天早上幾點起床？',
+        cue: 'Open question — answer with a clock time + に (or ごろ) + 起きました.',
+        hint: '［時］時に起きました。／［時］時ごろ起きました。',
+        suggested: '朝7時に起きました。', suggestedKana: 'あさしちじにおきました。',
+        altSamples: ['8時半ごろ起きました。', '今朝7時30分に起きました。'],
+        checkTokens: [
+          { re: /(時|じ|ji)/i, label: 'Clock hour 〜時' },
+          { re: /(起きました|おきました|okimashita)/i, label: 'Past verb 起きました' }
+        ],
+        remarks: [
+          'Specific clock times take particle に (7時に起きました), or 〜ごろ for "around" (7時半ごろ起きました).',
+          'Never attach に after 今朝 or 朝.'
+        ]
+      },
+      {
+        lesson: '9', mode: 'auto', gp: 'Nowhere (どこへも行きませんでした)',
+        qJp: '昨日どこかへ行きましたか。', qKana: 'きのうどこかへいきましたか。',
+        qEn: 'Did you go anywhere yesterday?', qZh: '昨天去了甚麼地方嗎？',
+        cue: 'Cue: Answer negatively ("No, I did not go anywhere.").',
+        hint: 'いいえ、どこへも行きませんでした。',
+        suggested: 'いいえ、どこへも行きませんでした。',
+        suggestedKana: 'いいえ、どこへもいきませんでした。',
+        accepted: [
+          'いいえ、どこへも行きませんでした',
+          'いいえ、昨日はどこへも行きませんでした',
+          'いいえ、わたしは昨日はどこへも行きませんでした',
+          'いいえ、行きませんでした'
+        ],
+        remarks: ['Particle order is always どこ + へ + も (never *どこもへ), paired with past negative 行きませんでした.']
+      },
+      // Lesson 10
+      {
+        lesson: '10', mode: 'open', gp: 'Evening Routine (晩御飯の後は何をしますか)',
+        qJp: '晩御飯の後は何をしますか。', qKana: 'ばんごはんのあとはなにをしますか。',
+        qEn: 'What do you do after dinner?', qZh: '晚飯之後你做甚麼？',
+        cue: 'Open question — describe an evening activity (watch TV, study, read, listen to music, etc.).',
+        hint: '［Object］を［Verb-ます］。／［Activity］をします。',
+        suggested: 'よくテレビを見ます。', suggestedKana: 'よくテレビをみます。',
+        altSamples: ['部屋で勉強をします。', '小説を読みます。時々音楽も聞きます。'],
+        checkTokens: [
+          { re: /(ます|ません|masu|masen)/i, label: 'Polite verb ending 〜ます' }
+        ],
+        remarks: [
+          'Mark direct objects with を (テレビを見ます, 小説を読みます, 音楽を聞きます).',
+          'If you include a location where the action happens, mark it with で (寮で勉強をします).'
+        ]
+      },
+      {
+        lesson: '10', mode: 'open', gp: 'Frequency Adverbs (よく vs. あまり)',
+        qJp: 'よくテレビを見ますか。', qKana: 'よくテレビをみますか。',
+        qEn: 'Do you watch TV often?', qZh: '你經常看電視嗎？',
+        cue: 'Open question — answer Yes (with よく) or No (with あまり〜ません).',
+        hint: 'はい、よく見ます。／ いいえ、あまり見ません。',
+        suggested: 'いいえ、あまりテレビを見ません。', suggestedKana: 'いいえ、あまりテレビをみません。',
+        altSamples: ['はい、よくテレビを見ます。', 'いいえ、あまり見ません。'],
+        checkTokens: [
+          { re: /(はい|ええ|いいえ|hai|ee|iie)/i, label: 'Yes/No opener (はい / いいえ)' },
+          { re: /(見ます|見ません|みます|みません|mimasu|mimasen)/i, label: 'Verb 見ます / 見ません' }
+        ],
+        remarks: [
+          'よく ("often") pairs with affirmative 見ます; あまり ("not very much") MUST pair with negative 見ません.'
+        ]
+      },
+      // Lesson 11
+      {
+        lesson: '11', mode: 'open', gp: 'Superlative (何月が一番寒いですか)',
+        qJp: 'あなたの町では何月が一番寒いですか。', qKana: 'あなたのまちではなんがつがいちばんさむいですか。',
+        qEn: 'Which month is the coldest in your city/town?', qZh: '在你的城市裡幾月份最冷？',
+        cue: 'Open question — answer with ［Month］が一番寒いです.',
+        hint: '［月］月が一番寒いです。',
+        suggested: '2月が一番寒いです。', suggestedKana: 'にがつがいちばんさむいです。',
+        altSamples: ['香港では2月が一番寒いです。', '1月が一番寒いです。'],
+        checkTokens: [
+          { re: /(月|がつ|gatsu)/i, label: 'Month 〜月' },
+          { re: /(一番|いちばん|ichiban)/i, label: 'Superlative 一番' },
+          { re: /(寒いです|さむいです|samui desu|samuidesu)/i, label: 'Predicate 寒いです' }
+        ],
+        remarks: [
+          'Mark the chosen month with subject particle が before 一番寒いです.',
+          'If naming your city/country, use scope marker では (例：台湾では1月が一番寒いです).'
+        ]
+      },
+      {
+        lesson: '11', mode: 'auto', gp: 'i-Adjective Present Negative (甘くないです)',
+        qJp: 'このワインは甘いですか。', qKana: 'このワインはあまいですか。',
+        qEn: 'Is this wine sweet?', qZh: '這瓶葡萄酒甜嗎？',
+        cue: 'Cue: Say "No, it is not sweet. It is dry (辛い)."',
+        hint: 'いいえ、甘くないです。辛いです。',
+        suggested: 'いいえ、甘くないです。辛いです。', suggestedKana: 'いいえ、あまくないです。からいです。',
+        accepted: [
+          'いいえ、甘くないです。辛いです。',
+          'いいえ、甘くありません。辛いです。',
+          'いいえ、そのワインは甘くないです。辛いです。',
+          'いいえ、あまくないです。からいです。'
+        ],
+        remarks: ['i-Adjectives negate by dropping い and adding くないです (or formal くありません).']
+      },
+      // Lesson 12
+      {
+        lesson: '12', mode: 'open', gp: 'Describing a Town (na-Adjectives & i-Adjectives)',
+        qJp: 'あなたの町はどんな町ですか。', qKana: 'あなたのまちはどんなまちですか。',
+        qEn: 'What kind of town is your town?', qZh: '你的市鎮是個怎樣的地方？',
+        cue: 'Open question — describe your town using a na-adjective (静かな / にぎやかな / 便利な / きれいな) or i-adjective.',
+        hint: '［な形容詞］な町です。／［い形容詞］町です。',
+        suggested: 'にぎやかで便利な町です。', suggestedKana: 'にぎやかでべんりなまちです。',
+        altSamples: ['とても静かな町です。', 'きれいな町です。店がたくさんあります。'],
+        checkTokens: [
+          { re: /(町|まち|machi|です|desu)/i, label: 'Polite predicate です' }
+        ],
+        remarks: [
+          'na-Adjectives require な before 町 (静かな町, にぎやかな町, 便利な町, きれいな町, 有名な町).',
+          'Remember that きれい and 有名 are na-adjectives despite ending in -i!'
+        ]
+      },
+      {
+        lesson: '12', mode: 'auto', gp: 'Polite Invitation 〜ませんか',
+        qJp: '今度の休みに一緒に行きませんか。', qKana: 'こんどのやすみにいっしょにいきませんか。',
+        qEn: 'Won’t you go together on the upcoming holiday?', qZh: '下次假期一起去好嗎？',
+        cue: 'Cue: Accept enthusiastically ("Yes, sounds great!").',
+        hint: 'ええ、いいですね。／ はい、いいですね。',
+        suggested: 'ええ、いいですね。', suggestedKana: 'ええ、いいですね。',
+        accepted: ['ええ、いいですね', 'はい、いいですね', 'はい、行きましょう', 'ええ、行きましょう'],
+        remarks: ['ええ、いいですね ("Yes, that sounds great!") is the natural textbook acceptance to V-ませんか.']
+      }
+    ];
+
     const KANJI_TRAPS = [
       { lesson: '1', word: '学生 (がくせい — student)', jp: '学', tc: '學', note: 'Japanese Shinjitai 学 has 3 top dots above 冖 + 子 (not Traditional Chinese 學).' },
       { lesson: '1', word: '中国人 (ちゅうごくじん — Chinese)', jp: '国', tc: '國', note: 'Japanese 国 contains 玉 inside 囗 (not 或 inside 囗).' },
@@ -6299,6 +6960,14 @@
     let translateScore = 0;
     let translateTotal = 0;
     let translateStreak = 0;
+
+    let qaPool = [];
+    let currentQa = null;
+    let qaAnswered = false;
+    let qaSelfGraded = false;
+    let qaScore = 0;
+    let qaTotal = 0;
+    let qaStreak = 0;
 
     let kanjiTrapIndex = 0;
     let kanjiTrapAnswered = false;
@@ -6773,6 +7442,17 @@
         document.getElementById('card-kanji-trap-text').textContent = currentCard.kanjiTrap;
       } else {
         trapBox.classList.add('hidden');
+      }
+
+      const confusableBox = document.getElementById('card-confusable-box');
+      const confusableMsg = getConfusableWarningForCard(currentCard);
+      if (confusableBox) {
+        if (confusableMsg) {
+          confusableBox.classList.remove('hidden');
+          document.getElementById('card-confusable-text').innerHTML = annotateJapaneseText(confusableMsg);
+        } else {
+          confusableBox.classList.add('hidden');
+        }
       }
 
       document.getElementById('card-example-jp').innerHTML = annotateJapaneseText(currentCard.exJp);
@@ -7350,7 +8030,7 @@
     // 10. CURRICULUM NAVIGATION & VIEW SWITCHING
     // =========================================================================
     function hideAllMainViews() {
-      ['view-srs', 'view-recall', 'view-cloze', 'view-pattern', 'view-translate', 'view-notes', 'view-dialogue', 'view-deck', 'view-kanakanji', 'view-counters'].forEach(id => {
+      ['view-srs', 'view-recall', 'view-cloze', 'view-pattern', 'view-translate', 'view-qa', 'view-notes', 'view-dialogue', 'view-deck', 'view-kanakanji', 'view-counters', 'view-categories'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.classList.add('hidden');
@@ -7382,6 +8062,10 @@
             pill.className = isActive
               ? 'curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white'
               : 'curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 border border-emerald-200/80 text-emerald-900 hover:bg-emerald-100';
+          } else if (pSec === 'CATEGORIES') {
+            pill.className = isActive
+              ? 'curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-purple-600 text-white'
+              : 'curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-50 border border-purple-200/80 text-purple-900 hover:bg-purple-100';
           } else {
             pill.className = isActive
               ? 'curriculum-pill shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#4F46E5] text-white'
@@ -7408,6 +8092,13 @@
           stopTypingGameTimer();
           if (subCnt) subCnt.classList.remove('hidden');
           setCounterSubMode(counterSubMode || 'matrix');
+        } else if (sec === 'CATEGORIES') {
+          stopTypingGameTimer();
+          stopCounterTypingTimer();
+          stopDialoguePlayback();
+          hideAllMainViews();
+          revealAnimatedView('view-categories');
+          renderCategorizedVocabView();
         } else {
           stopTypingGameTimer();
           stopCounterTypingTimer();
@@ -7419,6 +8110,7 @@
           const clozeCount = sec === 'ALL' ? CLOZE_ITEMS.length : CLOZE_ITEMS.filter(c => c.lesson === sec).length;
           const patternCount = sec === 'ALL' ? PATTERN_DRILLS.length : PATTERN_DRILLS.filter(p => p.lesson === sec).length;
           const transCount = buildTranslateBank(sec).length;
+          const qaCount = sec === 'ALL' ? QA_ITEMS.length : QA_ITEMS.filter(q => q.lesson === sec).length;
           const notesBadge = document.getElementById('badge-notes-count');
           if (notesBadge) notesBadge.textContent = notesCount;
           const dlgBadge = document.getElementById('badge-dialogue-count');
@@ -7429,6 +8121,8 @@
           if (patBadge) patBadge.textContent = patternCount;
           const transBadge = document.getElementById('badge-translate-count');
           if (transBadge) transBadge.textContent = transCount;
+          const qaBadge = document.getElementById('badge-qa-count');
+          if (qaBadge) qaBadge.textContent = qaCount;
           setLessonSubMode(lessonSubMode || 'notes');
         }
       } catch (err) {
@@ -7449,6 +8143,7 @@
         cloze: 'pill-lesson-cloze',
         pattern: 'pill-lesson-pattern',
         translate: 'pill-lesson-translate',
+        qa: 'pill-lesson-qa',
         deck: 'pill-lesson-deck'
       };
 
@@ -7489,6 +8184,9 @@
         } else if (mode === 'translate') {
           revealAnimatedView('view-translate');
           startTranslatePool();
+        } else if (mode === 'qa') {
+          revealAnimatedView('view-qa');
+          startQaPool();
         } else if (mode === 'deck') {
           revealAnimatedView('view-deck');
           renderDeckListView();
@@ -8089,6 +8787,225 @@
       if (!currentTranslate) return;
       const el = document.getElementById('trans-fb-answer');
       speakJapanese(currentTranslate.jp, null, el);
+    }
+
+    // =========================================================================
+    // 12D. JAPANESE Q & A ENGINE (AUTO-CHECK & OPEN SELF-CHECK)
+    // =========================================================================
+    function getScopedQaItems() {
+      if (activeSection === 'ALL') return QA_ITEMS;
+      const scoped = QA_ITEMS.filter(q => q.lesson === activeSection);
+      return scoped.length ? scoped : QA_ITEMS;
+    }
+
+    function startQaPool() {
+      qaPool = shuffleArray(getScopedQaItems());
+      nextQaItem();
+    }
+
+    function nextQaItem() {
+      if (qaPool.length === 0) {
+        qaPool = shuffleArray(getScopedQaItems());
+      }
+      currentQa = qaPool.pop();
+      qaAnswered = false;
+      qaSelfGraded = false;
+
+      document.getElementById('qa-tag').textContent = currentQa.lesson === 'ESS' ? '挨拶・教室 • Q & A' : `第${currentQa.lesson}課 • Q & A`;
+      document.getElementById('qa-gp').textContent = currentQa.gp;
+
+      const typeBadge = document.getElementById('qa-type-badge');
+      if (currentQa.mode === 'open') {
+        typeBadge.className = 'px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-extrabold';
+        typeBadge.textContent = '📝 Open • Self-Check';
+      } else {
+        typeBadge.className = 'px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-extrabold';
+        typeBadge.textContent = '🎯 Auto-Check';
+      }
+
+      document.getElementById('qa-question-jp').innerHTML = annotateJapaneseText(currentQa.qJp);
+      document.getElementById('qa-cue-box').textContent = currentQa.cue;
+      document.getElementById('qa-q-en').textContent = currentQa.qEn;
+      document.getElementById('qa-q-zh').textContent = currentQa.qZh;
+      document.getElementById('qa-trans-box').classList.add('hidden');
+      document.getElementById('qa-trans-btn').textContent = '🌐 EN/ZH';
+
+      document.getElementById('qa-hint-box').textContent = `Pattern: ${currentQa.hint}`;
+      document.getElementById('qa-hint-box').classList.add('hidden');
+      document.getElementById('qa-hint-btn').textContent = '💡 Pattern Hint';
+
+      const input = document.getElementById('qa-input');
+      input.value = '';
+      input.disabled = false;
+      document.getElementById('qa-submit-btn').disabled = false;
+      document.getElementById('qa-reveal-btn').disabled = false;
+      document.getElementById('qa-feedback').classList.add('hidden');
+      document.getElementById('qa-self-grade-bar').classList.add('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function toggleQaTranslation() {
+      const box = document.getElementById('qa-trans-box');
+      const btn = document.getElementById('qa-trans-btn');
+      if (!box || !btn) return;
+      const hidden = box.classList.contains('hidden');
+      box.classList.toggle('hidden', !hidden);
+      btn.textContent = hidden ? '🙈 Hide EN/ZH' : '🌐 EN/ZH';
+    }
+
+    function toggleQaHint() {
+      const box = document.getElementById('qa-hint-box');
+      const btn = document.getElementById('qa-hint-btn');
+      if (!box || !btn) return;
+      const hidden = box.classList.contains('hidden');
+      box.classList.toggle('hidden', !hidden);
+      btn.textContent = hidden ? '🙈 Hide Hint' : '💡 Pattern Hint';
+    }
+
+    function speakQaQuestion() {
+      if (!currentQa) return;
+      const el = document.getElementById('qa-question-jp');
+      speakJapanese(currentQa.qJp, null, el);
+    }
+
+    function speakQaSuggested() {
+      if (!currentQa) return;
+      const el = document.getElementById('qa-fb-suggested');
+      speakJapanese(currentQa.suggested, null, el);
+    }
+
+    function isMatchingQaAutoAnswer(userRaw, item) {
+      const u = normalizeJapaneseAnswer(userRaw);
+      if (!u) return false;
+      const allTargets = [item.suggested, item.suggestedKana, ...(item.accepted || [])];
+      const expanded = [];
+      allTargets.forEach(t => {
+        if (!t) return;
+        expanded.push(t);
+        expanded.push(kanaToRomaji(t));
+        expanded.push(t.replace(/下さい/g, 'ください'));
+        expanded.push(t.replace(/ください/g, '下さい'));
+        expanded.push(t.replace(/わたし/g, '私'));
+        expanded.push(t.replace(/ではありません/g, 'じゃありません'));
+      });
+      return expanded.some(cand => normalizeJapaneseAnswer(cand) === u);
+    }
+
+    function submitQaAnswer() {
+      if (qaAnswered || !currentQa) return;
+      const input = document.getElementById('qa-input');
+      const val = (input ? input.value : '').trim();
+      if (!val) {
+        revealQaAnswer();
+        return;
+      }
+      evaluateQaSubmission(val, false);
+    }
+
+    function revealQaAnswer() {
+      if (qaAnswered || !currentQa) return;
+      evaluateQaSubmission('', true);
+    }
+
+    function evaluateQaSubmission(userRaw, wasRevealed) {
+      qaAnswered = true;
+      document.getElementById('qa-input').disabled = true;
+      document.getElementById('qa-submit-btn').disabled = true;
+      document.getElementById('qa-reveal-btn').disabled = true;
+
+      const fb = document.getElementById('qa-feedback');
+      const statusEl = document.getElementById('qa-fb-status');
+      const echoEl = document.getElementById('qa-fb-user-echo');
+      const structEl = document.getElementById('qa-structure-checks');
+      const selfBar = document.getElementById('qa-self-grade-bar');
+
+      fb.classList.remove('hidden');
+      structEl.classList.add('hidden');
+      selfBar.classList.add('hidden');
+
+      if (userRaw) {
+        echoEl.classList.remove('hidden');
+        echoEl.textContent = `Your answer: ${userRaw}`;
+      } else {
+        echoEl.classList.add('hidden');
+      }
+
+      if (currentQa.mode === 'auto') {
+        qaTotal += 1;
+        const isCorrect = !wasRevealed && isMatchingQaAutoAnswer(userRaw, currentQa);
+        if (isCorrect) {
+          qaScore += 1;
+          qaStreak += 1;
+          statusEl.className = 'text-xs font-extrabold text-emerald-700';
+          statusEl.textContent = '✅ Great Answer! Matches the expected Japanese response.';
+          playFeedbackSFX(qaStreak % 5 === 0 ? 'fanfare' : 'correct');
+        } else if (wasRevealed) {
+          qaStreak = 0;
+          statusEl.className = 'text-xs font-extrabold text-amber-800';
+          statusEl.textContent = '👀 Suggested Answer Revealed:';
+        } else {
+          qaStreak = 0;
+          statusEl.className = 'text-xs font-extrabold text-rose-700';
+          statusEl.textContent = '❌ Not quite — compare with the suggested answer below:';
+          playFeedbackSFX('wrong');
+        }
+        document.getElementById('qa-score').textContent = `${qaScore}/${qaTotal}`;
+        document.getElementById('qa-streak').textContent = qaStreak;
+      } else {
+        // Open-ended question: run lightweight structure checks + provide self-check remarks
+        if (wasRevealed) {
+          statusEl.className = 'text-xs font-extrabold text-amber-800';
+          statusEl.textContent = '👀 Open Question — Review the suggested answer & remarks:';
+        } else {
+          statusEl.className = 'text-xs font-extrabold text-[#4F46E5]';
+          statusEl.textContent = '📝 Open Question — Compare your reply with the suggested answer & self-check remarks:';
+          playFeedbackSFX('correct');
+          if ((currentQa.checkTokens || []).length) {
+            structEl.classList.remove('hidden');
+            structEl.innerHTML = currentQa.checkTokens.map(chk => {
+              const hit = chk.re.test(userRaw);
+              return `<span class="px-2 py-0.5 rounded-lg text-[11px] font-bold border ${hit ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}">${hit ? '✓' : '○'} ${chk.label}</span>`;
+            }).join('');
+          }
+          selfBar.classList.remove('hidden');
+        }
+      }
+
+      document.getElementById('qa-fb-suggested').innerHTML = annotateJapaneseText(currentQa.suggested);
+      document.getElementById('qa-fb-romaji').textContent = formatStandardRomaji(kanaToRomaji(currentQa.suggestedKana || currentQa.suggested));
+
+      const altBox = document.getElementById('qa-alt-samples');
+      if ((currentQa.altSamples || []).length) {
+        altBox.classList.remove('hidden');
+        altBox.innerHTML = `<p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Other Natural Replies</p>` +
+          currentQa.altSamples.map(s => `<p class="font-jp text-xs font-bold text-slate-700 leading-relaxed">• ${annotateJapaneseText(s)}</p>`).join('');
+      } else {
+        altBox.classList.add('hidden');
+      }
+
+      document.getElementById('qa-remarks-list').innerHTML = (currentQa.remarks || [])
+        .map(r => `<li>${annotateJapaneseText(r)}</li>`)
+        .join('');
+
+      speakQaSuggested();
+    }
+
+    function recordQaSelfGrade(passed) {
+      if (qaSelfGraded) return;
+      qaSelfGraded = true;
+      qaTotal += 1;
+      if (passed) {
+        qaScore += 1;
+        qaStreak += 1;
+        playFeedbackSFX(qaStreak % 5 === 0 ? 'fanfare' : 'correct');
+      } else {
+        qaStreak = 0;
+        playFeedbackSFX('wrong');
+      }
+      document.getElementById('qa-score').textContent = `${qaScore}/${qaTotal}`;
+      document.getElementById('qa-streak').textContent = qaStreak;
+      document.getElementById('qa-self-grade-bar').classList.add('hidden');
+      showAudioStatusNotice(passed ? '✅ Marked as mastered!' : '🔄 Noted for review — keep practicing!');
     }
 
     // =========================================================================
@@ -9267,31 +10184,55 @@
 
       const notesHtml = notes.map(note => {
         const clarifyInfo = getNoteClarification(note);
-        const chipsHtml = (note.counterChips || []).map(grp => `
-          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold text-slate-800">${grp.label}</span>
-              <button type="button" onclick="speakJapanese('${grp.q}')" class="px-2 py-0.5 rounded-lg bg-indigo-50 text-[#4F46E5] text-[11px] font-bold font-jp">? ${wrapVocabWordGlossHtml(grp.q, grp.q)} 🔊</button>
+        const chipsHtml = (note.counterChips || []).map(grp => {
+          const isPairTable = grp.layout === 'pair-table';
+          const renderChipButton = (it) => {
+            const cls = it.shift === 'irr'
+              ? 'bg-amber-50 border-amber-200 text-amber-950'
+              : it.shift === 'ren'
+              ? 'bg-indigo-50 border-indigo-200 text-indigo-950'
+              : 'bg-white border-slate-200 text-slate-800';
+            return `
+              <button type="button" onclick="speakJapanese('${it.rd}')" class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border ${cls} hover:border-indigo-400 text-left transition">
+                <div class="min-w-0">
+                  <div class="text-xs sm:text-sm font-extrabold leading-relaxed">${wrapVocabWordGlossHtml(it.jp, it.rd)}</div>
+                </div>
+                <span class="text-xs shrink-0">🔊</span>
+              </button>
+            `;
+          };
+
+          if (isPairTable) {
+            const headers = grp.headers || ['Form A', 'Form B'];
+            return `
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-extrabold text-slate-800">${grp.label}</span>
+                  <button type="button" onclick="speakJapanese('${grp.q}')" class="px-2 py-0.5 rounded-lg bg-indigo-50 text-[#4F46E5] text-[11px] font-bold font-jp">? ${wrapVocabWordGlossHtml(grp.q, grp.q)} 🔊</button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 px-1 text-[11px] font-extrabold text-slate-500">
+                  <span>${headers[0]}</span>
+                  <span class="text-[#4F46E5]">${headers[1]}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 font-jp">
+                  ${grp.items.map(renderChipButton).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-slate-800">${grp.label}</span>
+                <button type="button" onclick="speakJapanese('${grp.q}')" class="px-2 py-0.5 rounded-lg bg-indigo-50 text-[#4F46E5] text-[11px] font-bold font-jp">? ${wrapVocabWordGlossHtml(grp.q, grp.q)} 🔊</button>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 font-jp">
+                ${grp.items.map(renderChipButton).join('')}
+              </div>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 font-jp">
-              ${grp.items.map(it => {
-                const cls = it.shift === 'irr'
-                  ? 'bg-amber-50 border-amber-200 text-amber-950'
-                  : it.shift === 'ren'
-                  ? 'bg-indigo-50 border-indigo-200 text-indigo-950'
-                  : 'bg-white border-slate-200 text-slate-800';
-                return `
-                  <button type="button" onclick="speakJapanese('${it.rd}')" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl border ${cls} hover:border-indigo-400 text-left transition">
-                    <div class="min-w-0">
-                      <div class="text-xs font-extrabold leading-relaxed">${wrapVocabWordGlossHtml(it.jp, it.rd)}</div>
-                    </div>
-                    <span class="text-xs shrink-0">🔊</span>
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         return `
           <article class="bg-white rounded-3xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-3.5">
@@ -9496,6 +10437,7 @@
       '8-8': { badge: 'Static Existence vs. Event Occurrence', pair: '机があります（物の存在） ／ 試験があります・ありました（行事の開催）', detail: 'あります also means an event, class, or exam takes place; mark the event date with に (10日に試験がありました).' },
       '8-9': { badge: 'Substitute Holiday Rule', pair: '振替休日（ふりかえきゅうじつ）', detail: 'When a Japanese national holiday falls on a Sunday, the following Monday automatically becomes a substitute public holiday.' },
       '8-10': { badge: 'Zero Particle on Relative Time Words', pair: '昨日・今日・あした・去年・今年（に不要） vs. 10月20日・日曜日（に必要）', detail: 'Relative time words (today, yesterday, next week, every day) never take particle に.' },
+      '8-11': { badge: 'Sentence-Initial Conjunctions vs. Clause Particle が', pair: 'そして（並列・順接） ／ ところで（話題転換） ／ ですから（理由・結果） ／ しかし・でも（逆接）', detail: 'そして adds sequential or parallel facts; ところで shifts to a new topic; ですから states a logical conclusion; しかし (formal) and でも (conversational) introduce a contrast.' },
       '9-1': { badge: 'Clock Hour vs. Duration Hour', pair: '4時（よじ＝4點鐘） vs. 4時間（よじかん＝4小時）', detail: '〜時 tells clock time (4時 よじ, 7時 しちじ, 9時 くじ); 〜時間 measures duration in hours (4時間 よじかん).' },
       '9-2': { badge: 'Habitual Present vs. Future Intent', pair: 'V-ます（習慣・未来の両方） vs. V-ました（過去）', detail: 'Japanese has no separate future tense: V-ます expresses both habitual routines (週に4回ぐらい来ます) and future actions (来年日本へ行きます).' },
       '9-3': { badge: 'Destination Particle へ vs. に', pair: '［場所］へ行きます / 来ます / 帰ります（へ＝"e"）', detail: 'Particle へ is written へ but pronounced "e". While に can also mark destination, へ emphasizes direction toward a goal.' },
@@ -9818,6 +10760,47 @@
     let vocabLookupMap = new Map();
     let sortedVocabKeys = [];
     let hidePopoverTimer = null;
+
+    // Confusable Word Warnings (shown in both Hover Card & Flashcard Back)
+    const CONFUSABLE_WARNINGS = {
+      '〜ぐらい': 'Do not confuse 〜ぐらい / 〜くらい (approximate quantity or duration: 10人ぐらい, 1週間ぐらい) with 〜ごろ (approximate point in time: 6時半ごろ, 2月の初めごろ).',
+      'ぐらい': 'Do not confuse 〜ぐらい / 〜くらい (approximate quantity or duration: 10人ぐらい, 1週間ぐらい) with 〜ごろ (approximate point in time: 6時半ごろ, 2月の初めごろ).',
+      'くらい': 'Do not confuse 〜くらい / 〜ぐらい (approximate quantity or duration: 10人ぐらい, 1週間ぐらい) with 〜ごろ (approximate point in time: 6時半ごろ, 2月の初めごろ).',
+      'ごろ': 'Do not confuse 〜ごろ (approximate point in time: 6時半ごろ, 2月の初めごろ) with 〜ぐらい (approximate duration or quantity: 1時間ぐらい, 10人ぐらい).',
+      '暑い': '暑い（あつい＝hot weather/air, opposite 寒い） vs. 熱い（あつい＝hot drink/to the touch, opposite 冷たい） vs. 厚い（あつい＝thick book/paper, opposite 薄い）.',
+      '熱い': '熱い（あつい＝hot drink/to the touch, opposite 冷たい） vs. 暑い（あつい＝hot weather/air, opposite 寒い） vs. 厚い（あつい＝thick book/paper, opposite 薄い）.',
+      '厚い': '厚い（あつい＝thick book/paper, opposite 薄い） vs. 暑い（あつい＝hot weather） vs. 熱い（あつい＝hot drink/touch）.',
+      '寒い': '寒い（さむい＝cold weather/climate, opposite 暑い） vs. 冷たい（つめたい＝cold drink/to the touch, opposite 熱い）.',
+      '冷たい': '冷たい（つめたい＝cold drink/to the touch, opposite 熱い） vs. 寒い（さむい＝cold weather/climate, opposite 暑い）.',
+      '後ろ': '後ろ（うしろ＝behind in physical space: 机の後ろ） vs. 後（あと＝after in time: 晩御飯の後）.',
+      '後': '後（あと＝after in time: 勉強の後） vs. 後ろ（うしろ＝behind in physical space: 机の後ろ）.',
+      '病院': '病院（びょういん＝hospital, single long syllable びょう） vs. 美容院（びよういん＝hair/beauty salon, 3 syllables び・よう・いん）.',
+      '美容院': '美容院（びよういん＝hair/beauty salon, び・よう・いん） vs. 病院（びょういん＝hospital, びょう・いん）.',
+      'よく': 'よく（often / frequently）pairs with AFFIRMATIVE verbs (よく見ます); its negative counterpart is あまり（あまり見ません）.',
+      'あまり': 'あまり（not very / not much）must pair with NEGATIVE verbs/adjectives (あまり見ません / あまり上手ではありません); affirmative counterpart is よく.',
+      'しか': 'しか（only / nothing but）must pair with a NEGATIVE verb (1つしかありません); affirmative "only" uses だけ.',
+      '〜しかありません': 'しか（only）requires a negative verb ending (しかありません / しかいません); affirmative "only" uses だけ.',
+      'だけ': 'だけ（only / just）pairs with AFFIRMATIVE predicates (1つだけあります); negative-pairing "only" uses しか (1つしかありません).',
+      'おおぜい': 'おおぜい（many）is used ONLY for people (子供がおおぜいいます); use たくさん for things (りんごがたくさんあります).',
+      'たくさん': 'たくさん（many / a lot）works for things and people, whereas おおぜい is used exclusively for people.',
+      '学生': '学生（がくせい＝university/college student） vs. 生徒（せいと＝primary/secondary school pupil）.',
+      '生徒': '生徒（せいと＝primary/secondary school pupil） vs. 学生（がくせい＝university/college student）.',
+      '先生': '先生（せんせい＝respectful title & direct address for teachers/doctors） vs. 教師（きょうし＝neutral job description, never used to address someone）.',
+      '教師': '教師（きょうし＝neutral profession title） vs. 先生（せんせい＝used when addressing or referring respectfully to your teacher）.',
+      '有名（な）': 'Trap: 有名（ゆうめい）ends in -i in romaji, but it is a na-Adjective! Say 有名な店 and 有名ではありません (never *有名くないです).',
+      'きれい（な）': 'Trap: きれい ends in い, but it is a na-Adjective! Say きれいな町 and きれいではありません (never *きれいくないです).',
+      'しかし': 'しかし（However / But）starts a new sentence, whereas particle 〜が、〜 joins two contrasting clauses inside the same sentence.',
+      'そして': 'そして（And / Moreover / Then）connects sequential/additive sentences; do not confuse with それでは（Well then / In that case）or しかし（However）.',
+      'それでは': 'それでは（Well then / In that case, spoken: じゃ）signals a decision or transition, whereas そして means "and / moreover".',
+      'いくら': 'いくら（How much money?）asks price, whereas いくつ（How many? / How old?）asks quantity.',
+      'いくつ': 'いくつ（How many? / How old?）asks quantity, whereas いくら（How much money?）asks price.'
+    };
+
+    function getConfusableWarningForCard(card) {
+      if (!card) return null;
+      const clean = (card.jp || '').replace(/（.*?）/g, '').trim();
+      return CONFUSABLE_WARNINGS[card.jp] || CONFUSABLE_WARNINGS[clean] || null;
+    }
 
     // Fallback reading map for any standalone Kanji / compounds not matched as whole cards
     const KANJI_READING_FALLBACK = {
@@ -10196,7 +11179,9 @@
               romaji: kanaToRomaji(sKana),
               en: `${baseEn} — ${enTag}`,
               zh: `${card.zh}（${zhTag}）`,
-              mnemonic: card.mnemonic
+              mnemonic: card.mnemonic,
+              exJp: card.exJp,
+              exEn: card.exEn
             };
             registerAlias(surf, inflectedCard, sKana);
           }
@@ -10234,7 +11219,9 @@
             romaji: kanaToRomaji(sKana),
             en: `${baseEn} — ${enTag}`,
             zh: `${card.zh}（${zhTag}）`,
-            mnemonic: card.mnemonic
+            mnemonic: card.mnemonic,
+            exJp: card.exJp,
+            exEn: card.exEn
           };
           registerAlias(surf, inflectedCard, sKana);
         });
@@ -10695,6 +11682,21 @@
       const isPunct = (ch) => /[\s\u3000。、．，！？!?,.'"`（）()・〜~「」：]/.test(ch);
       const isDigit = (ch) => /[0-9０-９]/.test(ch);
       const isPureAsciiDigits = (s) => /^\d+$/.test(s);
+      const isPureHiragana = (s) => /^[\u3040-\u309f]+$/.test(s);
+
+      const findBestVocabKeyAt = (pos, allowAll) => {
+        for (let k = 0; k < sortedVocabKeys.length; k++) {
+          const key = sortedVocabKeys[k];
+          if (raw.startsWith(key, pos)) {
+            if (isPureAsciiDigits(key)) continue;
+            if (isDigit(key[0]) && pos > 0 && isDigit(raw[pos - 1])) continue;
+            if (!allowAll && key.length <= 2 && isPureHiragana(key)) continue;
+            return key;
+          }
+        }
+        return null;
+      };
+
       while (i < raw.length) {
         const iterStart = i;
 
@@ -10711,20 +11713,12 @@
           }
         }
 
-        let matchedKey = null;
-        for (let k = 0; k < sortedVocabKeys.length; k++) {
-          const key = sortedVocabKeys[k];
-          if (raw.startsWith(key, i)) {
-            // Skip bare ASCII-digit keys (e.g. "10") so numbers in English text like "Lesson 10" or "10:00" don't falsely match
-            if (isPureAsciiDigits(key)) {
-              continue;
-            }
-            // Never start a numeric key in the middle of a multi-digit number (prevents 15分 matching 5分)
-            if (isDigit(key[0]) && i > 0 && isDigit(raw[i - 1])) {
-              continue;
-            }
-            matchedKey = key;
-            break;
+        let matchedKey = findBestVocabKeyAt(i, true);
+        // Word-boundary lookahead: prevent a short 2-char kana word like はい from eating the first char of a longer kana word like いつも in さんはいつも
+        if (matchedKey && matchedKey.length === 2 && isPureHiragana(matchedKey) && i + 1 < raw.length) {
+          const nextWordAtPlus1 = findBestVocabKeyAt(i + 1, false);
+          if (nextWordAtPlus1 && nextWordAtPlus1.length >= 3) {
+            matchedKey = null;
           }
         }
         if (matchedKey) {
@@ -10749,20 +11743,8 @@
             if (isDigit(raw[i]) && (i === 0 || !isDigit(raw[i - 1])) && matchDynamicNumberCounter(raw, i)) {
               nextHit = true;
             }
-            if (!nextHit) {
-              for (let k = 0; k < sortedVocabKeys.length; k++) {
-                const key = sortedVocabKeys[k];
-                if (raw.startsWith(key, i)) {
-                  if (isPureAsciiDigits(key)) {
-                    continue;
-                  }
-                  if (isDigit(key[0]) && i > 0 && isDigit(raw[i - 1])) {
-                    continue;
-                  }
-                  nextHit = true;
-                  break;
-                }
-              }
+            if (!nextHit && findBestVocabKeyAt(i, true)) {
+              nextHit = true;
             }
             if (nextHit && i > cStart) break;
             i += 1;
@@ -10799,6 +11781,17 @@
       document.getElementById('pop-en').textContent = card.en;
       document.getElementById('pop-zh').textContent = card.zh;
       document.getElementById('pop-mnemonic').textContent = `🧠 ${card.mnemonic}`;
+
+      const confEl = document.getElementById('pop-confusable');
+      const confMsg = getConfusableWarningForCard(card);
+      if (confEl) {
+        if (confMsg) {
+          confEl.classList.remove('hidden');
+          confEl.textContent = `⚡ ${confMsg}`;
+        } else {
+          confEl.classList.add('hidden');
+        }
+      }
 
       const trapEl = document.getElementById('pop-kanji-trap');
       if (card.kanjiTrap) {
@@ -11162,6 +12155,11 @@
           e.preventDefault();
           nextTranslateItem();
         }
+      } else if (!document.getElementById('view-qa').classList.contains('hidden')) {
+        if (e.key === 'Enter' && qaAnswered) {
+          e.preventDefault();
+          nextQaItem();
+        }
       } else if (!document.getElementById('view-counters').classList.contains('hidden') && counterSubMode === 'drill') {
         if (['1', '2', '3', '4'].includes(e.key)) {
           const btns = document.querySelectorAll('.cnt-opt-btn');
@@ -11183,7 +12181,7 @@
 
     function normalizeSearchText(str) {
       if (!str) return '';
-      // Convert any Katakana to Hiragana first
+      // Convert any Katakana to Hiragana first (do NOT convert う->お so partial hiragana like れいぞう matches れいぞうこ)
       const s = str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
       return s
         .toLowerCase()
@@ -11205,8 +12203,7 @@
         .replace(/tsu/g, 'tu')
         .replace(/shi/g, 'si')
         .replace(/chi/g, 'ti')
-        .replace(/fu/g, 'hu')
-        .replace(/oo/g, 'ou');
+        .replace(/fu/g, 'hu');
     }
 
     function textToSearchableRomaji(jpStr) {
@@ -11413,7 +12410,7 @@
           const kkNames = { chart: '50-On Chart', lookalike: 'Similar Kana', kanji: 'Kanji Traps', typing: 'Typing Game' };
           pageName = kkNames[kanaKanjiSubMode] || 'Kana & Kanji';
         } else {
-          const subNames = { notes: 'Notes', dialogue: 'Dialogue', srs: 'Cards', recall: 'Quiz', cloze: 'Fill-in', pattern: 'Drills', translate: 'Translate', deck: 'Words' };
+          const subNames = { notes: 'Notes', dialogue: 'Dialogue', srs: 'Cards', recall: 'Quiz', cloze: 'Fill-in', pattern: 'Drills', translate: 'Translate', qa: 'Q & A', deck: 'Words' };
           pageName = subNames[lessonSubMode] || 'Notes';
         }
         pgPill.textContent = `📄 ${pageName}`;
@@ -11439,7 +12436,7 @@
       if (lessonSubMode === 'notes') return it.type === 'NOTES';
       if (lessonSubMode === 'dialogue') return it.type === 'DIALOGUES';
       if (['srs', 'recall', 'deck'].includes(lessonSubMode)) return it.type === 'WORDS';
-      if (['cloze', 'pattern', 'translate'].includes(lessonSubMode)) {
+      if (['cloze', 'pattern', 'translate', 'qa'].includes(lessonSubMode)) {
         return it.type === 'DIALOGUES' || it.type === 'NOTES';
       }
       return true;
@@ -11583,6 +12580,164 @@
         counterSubMode = it.actionPayload || 'matrix';
         selectCurriculumSection('COUNTERS');
       }
+    }
+
+    // =========================================================================
+    // 16C. CATEGORIZED VOCABULARY ACROSS ALL CHAPTERS (語彙分類)
+    // =========================================================================
+    const VOCAB_CATEGORIES = [
+      { id: 'ALL', label: 'All Categories', icon: '📚', desc: 'Complete thematic & grammatical vocabulary across Chapters 1–12' },
+      { id: 'UNI', label: 'University & Majors', icon: '🏫', desc: 'Faculties, academic majors, year levels & campus buildings' },
+      { id: 'PLACES', label: 'Places, Shops & Geography', icon: '🏢', desc: 'Town facilities, 〜屋 shops, HK districts & Japan regions' },
+      { id: 'POSITIONS', label: 'Positions & Directions', icon: '📍', desc: 'Spatial locations (上・下・前・後ろ・間) & compass directions' },
+      { id: 'TIME', label: 'Time, Calendar & Seasons', icon: '⏰', desc: 'Relative time, days of week, seasons, holidays & durations' },
+      { id: 'PEOPLE', label: 'People, Titles & Countries', icon: '👥', desc: 'Pronouns, family/titles, nationalities & countries' },
+      { id: 'FOOD', label: 'Food, Drinks & Fruits', icon: '🍎', desc: 'Meals, beverages, fruits & dining expressions' },
+      { id: 'OBJECTS', label: 'Stationery & Everyday Objects', icon: '✏️', desc: 'Books, pens, classroom items & household furniture' },
+      { id: 'VERBS', label: 'Verbs & Daily Actions', icon: '🏃', desc: 'Existence verbs (あります・います), movement & daily routines' },
+      { id: 'IADJ', label: 'i-Adjectives (い形容詞)', icon: '🎨', desc: 'Descriptive i-adjectives for size, price, taste, weather & feelings' },
+      { id: 'NAADJ', label: 'na-Adjectives (な形容詞)', icon: '✨', desc: 'Descriptive na-adjectives including -i ending traps (有名・きれい)' },
+      { id: 'ADVERBS', label: 'Adverbs & Frequency', icon: '📊', desc: 'Frequency scale (いつも・よく・時々・あまり) & degree adverbs' },
+      { id: 'DEMO', label: 'Demonstratives & Questions', icon: '👉', desc: 'Ko-So-A-Do series (これ・ここ・この・こちら) & question words' },
+      { id: 'LINKERS', label: 'Greetings, Particles & Linkers', icon: '💬', desc: 'Conjunctions (そして・ところで・ですから・しかし), greetings & particles' }
+    ];
+
+    let activeVocabCategory = 'ALL';
+
+    function classifyCardCategory(card) {
+      const jp = (card.jp || '').replace(/（.*?）/g, '').trim();
+      const pos = card.pos || '';
+      if (pos === 'い形容詞') return 'IADJ';
+      if (pos === 'な形容詞') return 'NAADJ';
+      if (pos === '動詞') return 'VERBS';
+      if (pos === '副詞') return 'ADVERBS';
+      if (pos === '連体詞' || pos === '疑問詞' || ['これ','それ','あれ','どれ','ここ','そこ','あそこ','どこ','こちら','そちら','あちら','どちら','だれ','だれか'].includes(jp)) return 'DEMO';
+      if (pos === '挨拶' || pos === '接続詞' || pos === '助詞' || pos === '終助詞' || pos === '接続助詞' || pos === '感動詞' || pos === '助動詞' || pos === '接尾辞' || card.jp.startsWith('〜')) return 'LINKERS';
+      if (pos === '位置' || pos === '方位' || ['上','下','前','後ろ','中','外','右','左','右側','左側','隣','近く','遠く','真ん中','向こう','間','そば','東','西','南','北'].includes(jp)) return 'POSITIONS';
+      if (/(大学|学生|生徒|先生|教師|専攻|学科|学部|年生|クラス|授業|試験|留学|地理|歴史|経済|翻訳|心理学|日本研究|日本語|英語|フランス語|中国語|北京語|教室|研究室|事務室|図書館|図書室|印刷室|会議室|学生会館|学生寮|女子寮|男子寮|キャンパス|宿題|勉強)/.test(jp)) return 'UNI';
+      if (/(りんご|みかん|オレンジ|すいか|バナナ|ぶどう|いちご|桃|なし|かき|メロン|パイナップル|キウイ|パパイア|マンゴー|ドリアン|果物|食べ物|飲み物|ビール|ワイン|茅台酒|焼酎|お酒|酒|紅茶|中国茶|お茶|水|蜂蜜|卵|ケーキ|御飯|昼御飯|晩御飯|朝御飯|昼食|夕食|料理|飲茶)/.test(jp)) return 'FOOD';
+      if (/(本|辞書|百科事典|新聞|雑誌|ノート|メモ用紙|鉛筆|ボールペン|万年筆|シャーペン|シャープペンシル|消しゴム|はさみ|のり|定規|ホッチキス|カッター|紙|机|いす|テーブル|ソファー|棚|本棚|ロッカー|箱|冷蔵庫|時計|電卓|コンピュータ|テレビ|ラジオ|かばん|傘|帽子|ハンカチ|ポスター|漫画|小説|手紙|灰皿|吸い殻|たばこ|マッチ|黒板|電話|植木鉢|プレゼント)/.test(jp)) return 'OBJECTS';
+      if (/(曜日|時|分|時間|週間|か月|月|日|年|朝|昼|夜|晩|夕方|今朝|毎朝|毎晩|毎日|毎週|毎月|毎年|昨日|今日|あした|明日|あさって|明後日|おととい|一昨日|去年|今年|来年|再来年|おととし|一昨年|先週|今週|来週|再来週|先月|今月|来月|再来月|春|夏|秋|冬|休み|誕生日|生年月日|正月|節句|中秋節|清明節|重陽節|クリスマス|イースター|記念日|成人の日|みどりの日|こどもの日|海の日|山の日|敬老の日|文化の日|勤労感謝の日|元日|昭和|西暦|旧暦|初め|今|昔|今度|予定|半)/.test(jp)) return 'TIME';
+      if (/(人|男|女|子供|友達|家族|彼女|お兄さん|お姉さん|店員|職員|通行人|ウエートレス|ウエーター|部長|課長|わたし|あなた|田中|山田|佐藤|中村|陳|王|李|張|黄|周|石|郭|馮|楊|呉|洪|スミス|ポール|中国|日本|韓国|北朝鮮|台湾|マカオ|シンガポール|マレーシア|フィリピン|インドネシア|インド|タイ|ロシア|オーストラリア|ニュージーランド|アメリカ|カナダ|イギリス|ポルトガル|ドイツ|スペイン|フランス|イタリア|アジア|ヨーロッパ|オセアニア)/.test(jp)) return 'PEOPLE';
+      if (/(駅|郵便局|銀行|病院|美容院|床屋|公園|映画館|食堂|店|屋|デパート|ショッピングセンター|マンション|アパート|団地|建物|町|うち|台所|庭|門|窓|壁|池|木|お寺|教会|神社|売店|ホテル|駅ビル|香港|モンコク|沙田|大埔|新界|ランタオ|馬鞍山|京都|県|府|都|北海道|本州|四国|九州|沖縄|地方)/.test(jp)) return 'PLACES';
+      return 'LINKERS';
+    }
+
+    function getCategorizedCardsMap() {
+      const map = new Map();
+      VOCAB_CATEGORIES.forEach(cat => { if (cat.id !== 'ALL') map.set(cat.id, []); });
+      VOCAB_CARDS.forEach(c => {
+        const catId = classifyCardCategory(c);
+        if (map.has(catId)) map.get(catId).push(c);
+      });
+      return map;
+    }
+
+    function setActiveVocabCategory(catId) {
+      activeVocabCategory = catId || 'ALL';
+      renderCategorizedVocabView();
+    }
+
+    function studyActiveVocabCategory(targetSubMode) {
+      const catMap = getCategorizedCardsMap();
+      const cards = activeVocabCategory === 'ALL'
+        ? VOCAB_CARDS
+        : (catMap.get(activeVocabCategory) || VOCAB_CARDS);
+      if (!cards.length) return;
+      activeSection = 'ALL';
+      selectCurriculumSection('ALL');
+      setLessonSubMode(targetSubMode);
+      if (targetSubMode === 'srs') {
+        dueQueue = shuffleArray(cards);
+        currentCard = dueQueue[0] || null;
+        renderCurrentSRSCard();
+      } else if (targetSubMode === 'recall') {
+        quizPool = shuffleArray(cards);
+        nextQuizQuestion();
+      }
+    }
+
+    function renderCategorizedVocabView() {
+      const pillsEl = document.getElementById('cat-vocab-pills');
+      const groupsEl = document.getElementById('cat-vocab-groups-container');
+      const countBadge = document.getElementById('cat-vocab-count-badge');
+      if (!pillsEl || !groupsEl) return;
+
+      const catMap = getCategorizedCardsMap();
+      const rawQ = (document.getElementById('cat-vocab-search')?.value || '').trim().toLowerCase();
+      const normQ = normalizeSearchText(rawQ);
+
+      pillsEl.innerHTML = VOCAB_CATEGORIES.map(cat => {
+        const count = cat.id === 'ALL' ? VOCAB_CARDS.length : (catMap.get(cat.id)?.length || 0);
+        const active = cat.id === activeVocabCategory;
+        return `
+          <button type="button" onclick="setActiveVocabCategory('${cat.id}')" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${active ? 'bg-purple-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-purple-50 hover:text-purple-800'}">
+            <span>${cat.icon}</span>
+            <span>${cat.label}</span>
+            <span class="px-1.5 py-0.2 rounded-md text-[10px] font-extrabold ${active ? 'bg-white/20 text-white' : 'bg-white text-slate-500'}">${count}</span>
+          </button>
+        `;
+      }).join('');
+
+      const targetCats = activeVocabCategory === 'ALL'
+        ? VOCAB_CATEGORIES.filter(c => c.id !== 'ALL')
+        : VOCAB_CATEGORIES.filter(c => c.id === activeVocabCategory);
+
+      let totalVisible = 0;
+      groupsEl.innerHTML = targetCats.map(cat => {
+        const list = (catMap.get(cat.id) || []).filter(c => {
+          if (!rawQ) return true;
+          const rawMatch = [c.jp, c.kana, c.romaji, formatStandardRomaji(c.romaji), c.en, c.zh, c.mnemonic]
+            .some(v => (v || '').toLowerCase().includes(rawQ));
+          if (rawMatch) return true;
+          return normQ && normalizeSearchText([c.jp, c.kana, c.romaji, c.en, c.zh].join(' ')).includes(normQ);
+        });
+        totalVisible += list.length;
+        if (!list.length) return '';
+
+        return `
+          <article class="bg-white rounded-3xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+              <div>
+                <h4 class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <span>${cat.icon}</span>
+                  <span>${cat.label}</span>
+                  <span class="px-2 py-0.5 rounded-lg bg-purple-50 text-purple-800 text-xs font-extrabold">${list.length}</span>
+                </h4>
+                <p class="text-xs text-slate-500 mt-0.5">${cat.desc}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              ${list.map(c => {
+                const safeId = c.id.replace(/'/g, "\\'");
+                const safeKana = (c.kana || c.jp).replace(/'/g, "\\'");
+                const rubyHtml = buildKanjiRubyHtml(c.jp, c.kana);
+                return `
+                  <div class="p-3 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-purple-300 transition flex items-center justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5">
+                        <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-[#4F46E5] text-[10px] font-extrabold">${c.lesson === 'ESS' ? '挨拶' : `第${c.lesson}課`}</span>
+                        <span class="text-[10px] font-semibold text-slate-400 truncate">${c.pos}</span>
+                      </div>
+                      <p class="font-jp text-sm sm:text-base font-extrabold text-slate-900 mt-1 leading-relaxed">
+                        <span class="jp-gloss" onmouseenter="showGlossPopover(event, '${safeId}')" onmouseleave="scheduleHideGlossPopover()" onclick="event.stopPropagation(); showGlossPopover(event, '${safeId}')">${rubyHtml}</span>
+                      </p>
+                      <p class="text-[11px] font-mono font-semibold text-indigo-600 truncate">${formatStandardRomaji(c.romaji)}</p>
+                      <p class="text-xs text-slate-600 truncate mt-0.5">${c.en} • ${c.zh}</p>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button type="button" onclick="speakJapanese('${safeKana}')" class="p-1.5 rounded-xl bg-white border border-slate-200 hover:bg-indigo-50 text-xs" title="Listen">🔊</button>
+                      <button type="button" onclick="jumpToFlashcardById('${safeId}')" class="px-2 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-600 text-purple-800 hover:text-white text-[11px] font-bold transition">Study</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </article>
+        `;
+      }).join('') || `<div class="bg-white rounded-3xl border border-slate-200 p-8 text-center text-xs text-slate-400">No matching words in this category.</div>`;
+
+      if (countBadge) countBadge.textContent = `${totalVisible} word${totalVisible === 1 ? '' : 's'}`;
     }
 
     // =========================================================================
